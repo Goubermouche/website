@@ -1,0 +1,126 @@
+@font-face {
+    font-family: 'Intel Mono';
+    src: url('../content/fonts/jetbrains_mono/JetBrainsMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --background-primary: #171717;
+    --background-secondary: #2f2f2f;
+
+    --text-primary: #ffffff;
+    --text-secondary: #d8d8d8;
+
+    --text-accent-primary-inactive: #75b6e7;
+    --text-accent-primary-active: #75b6e7;
+
+    --heading-padding: 10px;
+
+    --regular-text-font: 'Segoe UI';
+    --code-text-font: monospace;
+}
+
+.text {
+    font-family: var(--regular-text-font);
+    color: var(--text-primary);
+
+    font-size: 18px;
+    font-weight: 400;
+
+    padding-bottom: var(--heading-padding);
+}
+
+.heading-primary {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.heading-secondary {
+    font-size: 25px;
+    font-weight: 600;
+}
+
+html, body {
+    text-align: justify;
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+body {
+    background-color: var(--background-primary);
+    align-self: center;
+
+    max-width: 1000px;
+    height: 100%;
+
+
+    display: table-cell;
+}
+
+a {
+    color: var(--text-accent-primary-inactive);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+
+    padding-bottom: var(--heading-padding);
+}
+
+a:hover{
+    color: var(--text-accent-primary-active);
+    text-decoration: underline;
+}
+
+.code {
+    padding: 16px 16px 20px 20px;
+    font-size: 14px;
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    font-family: var(--code-text-font);
+    border-left: 5px solid #404040;
+}
+
+.control-keyword {
+    color: #d4a0e1;
+}
+
+.type-keyword {
+    color: #619dd8;
+}
+
+.numerical-literal {
+    color: #b7cea7;
+}
+
+.text-literal {
+    color: #c99176;
+}
+
+.function-name {
+    color: #dbdca8;
+}
+
+.comment {
+    color: #61a644;
+}
+
+.include-keyword {
+    color: #9a9a9a;
+}
+
+.include-path {
+    color: #c99176;
+}
+
+.custom-type {
+    color: #62c9b0;
+}
+
+.operator {
+    color: #b4b4b4;
+}
