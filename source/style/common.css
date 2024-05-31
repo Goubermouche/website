@@ -124,3 +124,7 @@ a:hover{
 .operator {
     color: #b4b4b4;
 }
+
+.enum-type {
+    color:#b7cea7;
+}

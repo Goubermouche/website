@@ -1,6 +1,25 @@
 "use-strict"
 
+
 const code_1 = `
+float Q_rsqrt(float number) {
+  long i;
+  float x2, y;
+  const float threehalfs = 1.0f;
+
+  x2 = number * 0.5f;
+  y  = number;
+  i  = *(long*)&y;                       // evil floating point bit level hacking
+  i  = 0x5f3759df - (i >> 1);            // what the fuck?
+  y  = *(float*)&i;
+  y  = y * (threehalfs - (x2 * y * y));  // 1st iteration
+  // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
+
+  return y;
+}
+`;
+
+const code_2 = `
 #include <iostream>  // Include directive
 #include <vector>    // Standard library inclusion
 #include <memory>    // Smart pointers
@@ -12,7 +31,7 @@ namespace my_namespace {
     enum class Color { RED, GREEN, BLUE };  // Enum class
 
     struct Point {   // Struct
-        int x, y;p
+        int x, y;
     };
 
     class Base {    // Base class
@@ -87,7 +106,7 @@ namespace my_namespace {
 
         // Using template function
         auto sum = add(3, 4);
-        std::cout << "Sum: " << sum << std::endl;
+        std::cout << "Sum: " << sum << std::endl 2>1;
 
         // Using classes
         Base b;
@@ -103,233 +122,253 @@ int main() {
 }
 `;
 
-const code_2 = `
-struct Point {   // Struct
-    int x, y;
-};
-`;
+function escape_reg_exp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function is_composed_of(input, elements) {
+    const escaped_elements = elements.map(escape_reg_exp).join('|');
+    const regex = new RegExp(`^(${escaped_elements})+$`);
+    return regex.test(input);
+}
 
 function generate_code_block(code, parent_id) {
     const parent = document.getElementById(parent_id);
 
     const control_keywords = [
-        "if", 
-        "else", 
-        "switch", 
-        "case", 
-        "default",
-        "do", 
-        "while", 
-        "for", 
-        "break",
-        "continue",
-        "return",
-        "goto", 
-        "try", 
-        "catch", 
-        "throw"
+        "if", "else", "switch", "case", 
+        "default", "do", "while", "for", 
+        "break", "continue", "return",
+        "goto", "try", "catch", "throw"
     ];
     
     const type_keywords = [
-        "bool", 
-        "char", 
-        "char8_t", 
-        "char16_t", 
-        "char32_t",
-        "wchar_t", 
-        "short", 
-        "int", 
-        "long",
-        "signed",
-        "unsigned",
-        "float", 
-        "double", 
-        "void", 
-        "auto", 
-        "decltype",
-        "int8_t",
-        "int16_t",
-        "int32_t",
-        "int64_t",
-        "uint8_t",
-        "uint16_t",
-        "uint32_t",
-        "uint64_t",
-        "const",
-        "volatile",
-        "mutable",
-        "static",
-        "extern",
-        "register",
-        "thread_local",
-        "namespace",
-        "using",
-        "class",
-        "struct",
-        "union",
-        "friend",
-        "public",
-        "private",
-        "protected",
-        "public",
-        "virtual",
-        "explicit",
-        "final",
-        "override",
-        "sizeof",
-        "alignof",
-        "new",
-        "delete",
-        "co_await",
-        "co_return",
-        "co_yield",
-        "static_cast",
-        "dynamic_cast",
-        "const_cast",
-        "reinterpret_cast",
-        "and",
-        "and_eq",
-        "bitand",
-        "bitor",
-        "not",
-        "not_eq",
-        "or",
-        "or_eq",
-        "xor",
-        "xor_eq",
-        "compl",
-        "asm",
-        "static_assert",
-        "noexcept",
-        "nullptr",
-        "typeid",
-        "typedef",
-        "requires",
-        "concept",
-        "alignas",
-        "consteval",
-        "constexpr",
-        "constinit",
-        "import",
-        "module",
-        "reflexpr",
-        "synchronized",
-        "enum",
-        "template",
+        "bool", "char", "char8_t", 
+        "char16_t", "char32_t", "wchar_t", 
+        "short", "int", "long", "signed",
+        "unsigned", "float", "double", 
+        "void", "auto", "decltype",
+        "int8_t", "int16_t", "int32_t",
+        "int64_t", "uint8_t", "uint16_t",
+        "uint32_t", "uint64_t", "const",
+        "volatile", "mutable", "static",
+        "extern", "register", "thread_local",
+        "namespace", "using", "class",
+        "struct", "union", "friend",
+        "public", "private", "protected",
+        "public", "virtual", "explicit",
+        "final", "override", "sizeof",
+        "alignof", "new", "delete",
+        "co_await", "co_return", "co_yield",
+        "static_cast", "dynamic_cast",
+        "const_cast", "reinterpret_cast",
+        "and", "and_eq", "bitand",
+        "bitor", "not", "not_eq", "or",
+        "or_eq", "xor", "xor_eq", "compl",
+        "asm", "static_assert", "noexcept",
+        "nullptr", "typeid", "typedef",
+        "requires", "concept", "alignas",
+        "consteval", "constexpr", "constinit",
+        "import", "module", "reflexpr",
+        "synchronized", "enum", "template",
         "typename"
     ];
-    const regex = /(\b0[xX][0-9a-fA-F]+\b|\b0[bB][01]+\b|\b\d+(\.\d+)?\b|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\w+\s*\(|\/\/[^\n]*|#include\s*<[^>]+>|#include\s*"[^"]+"|\w+|\s+|[^\s\w]+)/g;
-const words = code.match(regex);
 
-let customTypeNames = [];
-
-// Function to detect and store custom type names
-function detectCustomTypes(code) {
-    const customTypeRegex = /\b(class|struct|typename)\s+(\w+)/g;
-    const keywords = new Set(['class', 'struct', 'typename']);
-    const customTypeNames = [];
-    let match;
-
-    while ((match = customTypeRegex.exec(code)) !== null) {
-        const keyword = match[1];
-        const typeName = match[2];
-
-        if (!keywords.has(typeName)) {
-            console.log('Captured type name:', typeName);  // Print the captured type name
-            customTypeNames.push(typeName);
-        } else {
-            // If the typeName is a keyword, restart the regex from the current match index
-            customTypeRegex.lastIndex = match.index + keyword.length;
-        }
-    }
-
-    return customTypeNames;
-}
-
-
-// Call the function to detect custom types
-customTypeNames = detectCustomTypes(code);
-
-const replacedWords = words.map(word => {
-    const strippedWord = word.match(/\w+/) ? word.match(/\w+/)[0] : "";
-
-    if (control_keywords.includes(strippedWord)) {
-        // HACK: control flow keywords sometimes look like a function call, but we don't want to treat them as
-        //       such, for this reason we have to check if the token ends with a '(', and if it does we split it.
-        if (word.endsWith('(')) {
-            return `<span class="control-keyword">${word.substr(0, word.length - 1)}</span><span class="operator">(</span>`;
-        }
-
-        return `<span class="control-keyword">${word}</span>`;
-    }
-
-    if(type_keywords.includes(strippedWord)) {
-        return `<span class="type-keyword">${word}</span>`;
-    }
-
-    if (/^"(?:\\.|[^"\\])*"$/.test(word)) {
-        return `<span class="text-literal">${word}</span>`;
-    }
-
-    if (/^'(?:\\.|[^'\\])'$/.test(word)) {
-        return `<span class="text-literal">${word}</span>`;
-    }
-
-    if (/\b0[xX][0-9a-fA-F]+\b/.test(word)) {
-        return `<span class="numerical-literal">${word}</span>`;
-    }
-
-    if (/\b0[bB][01]+\b/.test(word)) {
-        return `<span class="numerical-literal">${word}</span>`;
-    }
-
-    if (/\b\d+(\.\d+)?\b/.test(word)) {
-        return `<span class="numerical-literal">${word}</span>`;
-    }
-
-    if (/\w+\s*\($/.test(word)) {
-        const functionName = word.match(/(\w+)\s*\(/)[1];
-        return `<span class="function-name">${functionName}</span><span class="operator">(</span>`;
-    }
-
-    if (/^\/\/[^\n]*$/.test(word)) {
-        return `<span class="comment">${word}</span>`;
-    }
-
-    if (/^#include\s*<[^>]+>$/.test(word) || /^#include\s*"[^"]+"$/.test(word)) {
-        const includeParts = word.match(/(#include)\s*(<[^>]+>|"[^"]+")/);
-        if (includeParts) {
-            const keyword = includeParts[1];
-            const path = includeParts[2].replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return `<span class="include-keyword">${keyword}</span> <span class="include-path">${path}</span>`;
-        }
-    }
-
-    if(customTypeNames.includes(strippedWord)) {
-        return `<span class="custom-type">${word}</span>`;
-    }
-
-    // C++ operators
     const operators = [
-        '{', '}', '(', ')', '+', '-', '*', '/', '%', '++', '--', '==', '!=', '<', '>', '<=', '>=', '&&', '||', '!', '&', '|', '^', '~', '<<', '>>', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>=', '->', '.', '->*', '.*', '::'
+        '>', '<',',', '{', '}', '(', ')', '+', '-', 
+        '*', '/', '%', '++', '--', '==', '!=', '<=',
+        '>=', '&&', '||', '!', '&', '|', '^', '~',
+        '<<', '>>', '+=', '-=', '*=', '/=', '%=',
+        '&=', '|=', '^=', '<<=', '>>=', '->', '.',
+        '->*', '.*', '::', ';'
     ];
 
-    if (operators.includes(word)) {
-        return `<span class="operator">${word}</span>`;
+    const regex = /(\b0[xX][0-9a-fA-F]+\b|\b0[bB][01]+\b|\b\d+(\.\d+)?([fF])?\b|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\w+\s*\(|\/\/[^\n]*|#include\s*<[^>]+>|#include\s*"[^"]+"|\w+|\s+|[^\s\w]+)/g;
+    const words = code.match(regex);
+
+    let custom_type_names = [];
+    let enum_type_names = [];
+
+    function detect_custom_types(code) {
+        const custom_type_regex = /\b(class|struct|typename|enum)\s+(\w+)/g;
+        const keywords = new Set(['class', 'struct', 'typename', 'enum']);
+        let match;
+
+        while ((match = custom_type_regex.exec(code)) !== null) {
+            const keyword = match[1];
+            const typename = match[2];
+
+            if (!keywords.has(typename)) {
+                custom_type_names.push(typename);
+            } else {
+                // if the typename is a keyword, restart the regex from the current match index
+                custom_type_regex.lastIndex = match.index + keyword.length;
+            }
+        }
     }
 
-    if(word == "<") {
-        return `<span class="operator">&lt;</span>`;
+    function detect_enum_types(code) {
+        const enum_type_regex = /\b(enum|enum\s+class)\s+\w+\s*\{([^}]*)\}/g;
+        let match;
+
+        while ((match = enum_type_regex.exec(code)) !== null) {
+            const members = match[2].split(',').map(member => member.trim());
+
+            members.forEach(member => {
+                enum_type_names.push(member)
+            })
+        }
     }
-    else if(word == ">") {
-        return `<span class="operator">&gt;</span>`;
-    }
 
-    return word;
-});
+    detect_custom_types(code);
+    detect_enum_types(code);
 
-parent.innerHTML = `<pre class="code">${replacedWords.join('')}</pre>`;
+    const replaced_words = words.map(word => {
+        function replace_word(word) {
+            const stripped_word = word.match(/\w+/) ? word.match(/\w+/)[0] : "";
+    
+            // control keywords
+            if (control_keywords.includes(stripped_word)) {
+                return {
+                    token: "control-keyword",
+                    value: word
+                }
+            }
+    
+            // type keywords
+            if(type_keywords.includes(stripped_word)) {
+                return {
+                    token: "type-keyword",
+                    value: word
+                }
+            }
+    
+            // string literals
+            if (/^"(?:\\.|[^"\\])*"$/.test(word)) {
+                return {
+                    token: "text-literal",
+                    value: word
+                }
+            }
+    
+            // char literals
+            if (/^'(?:\\.|[^'\\])'$/.test(word)) {
+                return {
+                    token: "text-literal",
+                    value: word
+                }
+            }
+    
+            // hex literals
+            if (/\b0[xX][0-9a-fA-F]+\b/.test(word)) {
+                return {
+                    token: "numerical-literal",
+                    value: word
+                }
+            }
+        
+            // binary literals
+            if (/\b0[bB][01]+\b/.test(word)) {
+                return {
+                    token: "numerical-literal",
+                    value: word
+                }
+            }
+        
+            // floating point literals
+            if (/\b\d+(\.\d+)?([fF])?\b/.test(word)) {
+                return {
+                    token: "numerical-literal",
+                    value: word
+                }
+            }
+    
+            // function declarations and calls
+            if (/\w+\s*\($/.test(word)) {
+                return {
+                    token: "function-name",
+                    value: word
+                }
+            }
 
+            // inline comments
+            if (/^\/\/[^\n]*$/.test(word)) {
+                return {
+                    token: "comment",
+                    value: word
+                }
+            }
+    
+            // include directives
+            if (/^#include\s*<[^>]+>$/.test(word) || /^#include\s*"[^"]+"$/.test(word)) {
+                const parts = word.match(/(#include)\s*(<[^>]+>|"[^"]+")/);
+                return {
+                    token: "include",
+                    value: [parts[1], parts[2].replace(/</g, "&lt;").replace(/>/g, "&gt;")]
+                }
+            }
+    
+            // custom type names
+            if(custom_type_names.includes(stripped_word)) {
+                return {
+                    token: "custom-type",
+                    value: word
+                }
+            }
+
+            // enum type names
+            if(enum_type_names.includes(stripped_word)) {
+                return {
+                    token: "enum-type",
+                    value: word
+                }
+            }
+
+            // fallback to identifiers
+            return {
+                token: undefined,
+                value: word
+            };
+        }
+
+        const replaced = replace_word(word);
+
+        // identifiers
+        if(replaced.token === undefined) {
+            // identifiers can be composed only from operators, if this occurs we need to treat them as such
+            if(is_composed_of(replaced.value, operators)) {
+                return `<span class="operator">${replaced.value}</span>`
+            }
+
+            return replaced.value;
+        }
+
+        // special cases for classified tokens
+        switch(replaced.token)  {
+            case "comment":
+            case "type-keyword":
+            case "numerical-literal":
+            case "text-literal":
+            case "custom-type":
+            case "enum-type":
+                return `<span class="${replaced.token}">${replaced.value}</span>`;
+            case "function-name":
+                return `<span class="function-name">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
+            case "control-keyword": {
+                if(replaced.value.slice(-1) == "(") {
+                    return `<span class="control-keyword">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
+                }
+                return `<span class="control-keyword">${replaced.value}</span>`;
+            }
+            case "include": {
+                return `<span class="include-keyword">${replaced.value[0]}</span> <span class="include-path">${replaced.value[1]}</span>`;
+            }
+        }
+
+        return replaced;
+    });
+
+    parent.innerHTML = `<pre class="code">${replaced_words.join('')}</pre>`;
 }
 
 function main() {
