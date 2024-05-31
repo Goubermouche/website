@@ -6,9 +6,11 @@ I'm trying my hand at writing a personal [blog](./blog.html), where I go over pr
 {{endsegment}}
 
 {{segment}}
-## Education
+## Education and Achievements
 - [SSPŠ](https://www.ssps.cz/) (2019 - 2023) - High school - General-purpose IT.
 - [FIT ČVUT](https://fit.cvut.cz/cs) (2023 - today) - Bachelor's - CS
+- [FIKS](https://fiks.fit.cvut.cz/) - Programming contest organized by FIT ČVUT - 86th percentile.
+- [Cambridge English - C2](https://www.cambridgeenglish.org/exams-and-tests/proficiency/) - Advanced qualification of competency in English.
 
 ## Highlighted classes
 - [CCN](https://bilakniha.cvut.cz/cs/predmet7492006.html#gsc.tab=0) - Compiler construction (Christoph Kirsch).

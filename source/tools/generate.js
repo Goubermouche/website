@@ -460,20 +460,33 @@ function generate_page(source_file, destination_directory) {
             <div id="header"></div>
             <div id="content">${content}</div>
             <div id="footer">
-                <div id="footer-content" class="tertiary-text">
-                    <p>
+                <div id="footer-content">
+                    <div id="footer-links">
                         <a href="./main.html">Home</a> | 
                         <a href="./blog.html">Blog</a> | 
                         <a href="mailto: simontupy64@gmail.com">Email</a> |
                         <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
                         <a href="https://twitter.com/goubermouche">Twitter</a> | 
                         <a href="https://github.com/Goubermouche">GitHub</a> 
-                    </p>
-                    <p>
+                    </div>
+                    <div id="footer-parsed-time">
+                        <span id="parsed_time"></span>
+                    </div>
+                    <div id="footer-copyright">
                         &copy; 2024 goubermouche.com 
-                    </p>
+                    </div>
                 </div>
             </div>
+            <script>
+                const parsed_date_string = "${(new Date()).toString()}";
+                const parsed_date = new Date(parsed_date_string);
+                const current_date = new Date();
+
+                const difference_in_milliseconds = current_date - parsed_date;
+                const difference_in_days = difference_in_milliseconds / (1000 * 60 * 60 * 24);
+            
+                document.getElementById("parsed_time").innerHTML = \`Updated \${difference_in_days.toFixed(2)} days ago\`;
+            </script>
         </body>
         </html>
     `;
