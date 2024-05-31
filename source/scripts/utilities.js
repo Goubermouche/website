@@ -13,7 +13,7 @@ float Q_rsqrt(float number) {
     i  = 0x5f3759df - (i >> 1);            // what the fuck?
     y  = *(float*)&i;
     y  = y * (threehalfs - (x2 * y * y));  // 1st iteration
-    // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
+    // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed awdawdawd aw dawd aw da wdaw da wdaw 
 
     return y;
 }
@@ -131,8 +131,6 @@ function is_composed_of(input, elements) {
     const regex = new RegExp(`^(${escaped_elements})+$`);
     return regex.test(input);
 }
-
-
 
 function generate_code_block(code, parent_id) {
     const parent = document.getElementById(parent_id);
@@ -377,14 +375,41 @@ function generate_code_block(code, parent_id) {
 
     parent.innerHTML = "";
 
-    const code_holder = document.createElement("div");
-    code_holder.classList = "code"
+    const holder = document.createElement("div");
+    holder.classList.add("holder")
+    holder.classList.add("code")
+
+    const lines_holder = document.createElement("div");
+    lines_holder.classList = "lines"
+
+    const scrollable = document.createElement("div");
+    scrollable.classList = "scrollable"
+
+    const codes_holder = document.createElement("div");
+    codes_holder.classList = "codes"
+
+    scrollable.appendChild(codes_holder);
+
+    holder.appendChild(lines_holder);
+    holder.appendChild(scrollable);
+
 
     trimmed_lines.forEach((line, i) => {
-        code_holder.innerHTML += `<div class="code-line"><span class="code-line-index">${i + 1}</span>${line}</div>`;
+        lines_holder.innerHTML += `<div class="lines-index">${i + 1}</div>`;
+
+        const parent = document.createElement("div");
+        const child = document.createElement("div");
+
+        parent.classList.add("code-line-parent");
+        child.classList.add("code-line");
+
+        child.innerHTML = line;
+
+        parent.appendChild(child);
+        codes_holder.appendChild(parent)
     });
 
-    parent.appendChild(code_holder);
+    parent.appendChild(holder);
 }
 
 function main() {

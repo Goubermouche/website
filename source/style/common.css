@@ -68,7 +68,6 @@ a {
     text-decoration: none;
     font-weight: 600;
     font-size: 18px;
-
     padding-bottom: var(--heading-padding);
 }
 
@@ -78,27 +77,17 @@ a:hover{
 }
 
 .code {
-    font-size: 14px;
     margin-bottom: var(--heading-padding);
+    font-family: var(--code-text-font);
+    font-size: 14px;
 
     background-color: var(--background-secondary);
     color: var(--text-primary);
     font-family: var(--code-text-font);
     border: 3px solid #404040;
-    /*border-left: 5px solid #404040;*/
 }
 
-.code-line {
-    background-color: var(--background-secondary);
-    color: var(--text-primary);
-    font-family: var(--code-text-font);
-    white-space: pre-wrap;
-    overflow: auto;
-}
 
-.code-line:hover{
-    background-color: var(--background-secondary-bright);
-}
 
 .code-line-index{
     color: var(--text-secondary);
@@ -150,4 +139,47 @@ a:hover{
 
 .enum-type {
     color:#b7cea7;
+}
+
+.holder {
+    display: grid;
+    grid-template-columns: 32px auto;
+    margin-bottom: 10px;
+}
+
+.lines  {
+    background-color: #404040;
+    display: inline-block;
+}
+
+.lines-index {
+    padding-left: 2px;
+    padding-right: 4px;
+}
+
+.scrollable {
+    overflow-x: auto;
+    scrollbar-color: var(--text-secondary) #404040;
+    scrollbar-width: thin;
+}
+
+.codes {
+    background-color: red;
+    display: table;
+    width: 100%;
+}
+
+.code-line-parent {
+    background-color: var(--background-secondary);
+}
+
+.code-line-parent:hover {
+    background-color: var(--background-secondary-bright);
+}
+
+.code-line {
+    color: var(--text-primary);
+    white-space: pre;
+    height: 17px;
+    padding-left: 3px;
 }
