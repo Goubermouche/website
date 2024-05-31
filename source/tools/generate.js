@@ -1,126 +1,5 @@
-"use-strict"
-
-
-const code_1 = `
-float Q_rsqrt(float number) {
-    long i;
-    float x2, y;
-    const float threehalfs = 1.0f;
-
-    x2 = number * 0.5f;
-    y  = number;
-    i  = *(long*)&y;                       // evil floating point bit level hacking
-    i  = 0x5f3759df - (i >> 1);            // what the fuck?
-    y  = *(float*)&i;
-    y  = y * (threehalfs - (x2 * y * y));  // 1st iteration
-    // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed awdawdawd aw dawd aw da wdaw da wdaw 
-
-    return y;
-}
-`;
-
-const code_2 = `
-#include <iostream>  // Include directive
-#include <vector>    // Standard library inclusion
-#include <memory>    // Smart pointers
-#include <string>    // String library
-
-// Namespace usage
-namespace my_namespace {
-    const int MAX = 100;   // Constant
-    enum class Color { RED, GREEN, BLUE };  // Enum class
-
-    struct Point {   // Struct
-        int x, y;
-    };
-
-    class Base {    // Base class
-    public:
-        virtual void show() const {   // Virtual function
-            std::cout << "Base" << std::endl;
-        }
-    };
-
-    class Derived : public Base {  // Derived class with inheritance
-    private:
-        int value;
-
-    public:
-        Derived(int v) : value(v) {}  // Constructor with initializer list
-        void show() const override {  // Override keyword
-            std::cout << "Derived: " << value << std::endl;
-        }
-        int getValue() const { return value; }  // Const member function
-    };
-
-    template<typename T>   // Template
-    T add(T a, T b) {
-        return a + b;
-    }
-
-    void demonstrate() {
-        // Variable declarations
-        int i = 42;
-        double d = 3.14;
-        bool flag = true;
-
-        // Conditional statement
-        if (flag) {
-            std::cout << "Flag is true" << std::endl;
-        }
-
-        // Loop with range-based for
-        std::vector<int> vec = {1, 2, 3, 4};
-        for (int n : vec) {
-            std::cout << n << ' ';
-        }
-        std::cout << std::endl;
-
-        // Switch case
-        Color color = Color::RED;
-        switch (color) {
-            case Color::RED:
-                std::cout << "Red" << std::endl;
-                break;
-            case Color::GREEN:
-                std::cout << "Green" << std::endl;
-                break;
-            case Color::BLUE:
-                std::cout << "Blue" << std::endl;
-                break;
-        }
-
-        // Using smart pointers
-        std::unique_ptr<Point> ptr = std::make_unique<Point>();
-        ptr->x = 10;
-        ptr->y = 20;
-
-        // Exception handling
-        try {
-            if (i > MAX) {
-                throw std::out_of_range("Value out of range");
-            }
-        } catch (const std::exception &e) {
-            std::cerr << e.what() << std::endl;
-        }
-
-        // Using template function
-        auto sum = add(3, 4);
-        std::cout << "Sum: " << sum << std::endl 2>1;
-
-        // Using classes
-        Base b;
-        Derived d(10);
-        b.show();
-        d.show();
-    }
-}
-
-int main() {
-    my_namespace::demonstrate();  // Function call
-    return 0;  // Return statement
-}
-`;
+const fs = require('fs');
+const path = require('path');
 
 function escape_reg_exp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -132,8 +11,8 @@ function is_composed_of(input, elements) {
     return regex.test(input);
 }
 
-function generate_code_block(code, parent_id) {
-    const parent = document.getElementById(parent_id);
+function create_code_block(code) {
+    let result = "";
 
     const control_keywords = [
         "if", "else", "switch", "case", 
@@ -143,14 +22,10 @@ function generate_code_block(code, parent_id) {
     ];
     
     const type_keywords = [
-        "bool", "char", "char8_t", 
-        "char16_t", "char32_t", "wchar_t", 
+        "bool", "char", 
         "short", "int", "long", "signed",
         "unsigned", "float", "double", 
-        "void", "auto", "decltype",
-        "int8_t", "int16_t", "int32_t",
-        "int64_t", "uint8_t", "uint16_t",
-        "uint32_t", "uint64_t", "const",
+        "void", "auto", "decltype", "const",
         "volatile", "mutable", "static",
         "extern", "register", "thread_local",
         "namespace", "using", "class",
@@ -180,13 +55,20 @@ function generate_code_block(code, parent_id) {
         '>=', '&&', '||', '!', '&', '|', '^', '~',
         '<<', '>>', '+=', '-=', '*=', '/=', '%=',
         '&=', '|=', '^=', '<<=', '>>=', '->', '.',
-        '->*', '.*', '::', ';'
+        '->*', '.*', '::', ';', '[', ']'
     ];
 
     const regex = /(\b0[xX][0-9a-fA-F]+\b|\b0[bB][01]+\b|\b\d+(\.\d+)?([fF])?\b|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\w+\s*\(|\/\/[^\n]*|#include\s*<[^>]+>|#include\s*"[^"]+"|\w+|\s+|[^\s\w]+)/g;
     const words = code.match(regex);
 
-    let custom_type_names = [];
+    let custom_type_names = [
+        "size_t", "char8_t",  "char16_t",
+        "char32_t", "wchar_t", "int8_t", 
+        "int16_t", "int32_t", "int64_t",
+        "uint8_t", "uint16_t", "uint32_t",
+        "uint64_t"
+    ];
+
     let enum_type_names = [];
 
     function detect_custom_types(code) {
@@ -373,48 +255,165 @@ function generate_code_block(code, parent_id) {
     const last_non_empty_index = lines.length - 1 - lines.slice().reverse().findIndex(line => line.trim() !== '');
     const trimmed_lines = lines.slice(first_non_empty_index, last_non_empty_index + 1);
 
-    parent.innerHTML = "";
+    result += `<div class="holder code">`
 
-    const holder = document.createElement("div");
-    holder.classList.add("holder")
-    holder.classList.add("code")
-
-    const lines_holder = document.createElement("div");
-    lines_holder.classList = "lines"
-
-    const scrollable = document.createElement("div");
-    scrollable.classList = "scrollable"
-
-    const codes_holder = document.createElement("div");
-    codes_holder.classList = "codes"
-
-    scrollable.appendChild(codes_holder);
-
-    holder.appendChild(lines_holder);
-    holder.appendChild(scrollable);
-
+    // lines
+    result += `<div class="lines">`
 
     trimmed_lines.forEach((line, i) => {
-        lines_holder.innerHTML += `<div class="lines-index">${i + 1}</div>`;
+        result += `<div class="lines-index">${i + 1}</div>`;
+    })
 
-        const parent = document.createElement("div");
-        const child = document.createElement("div");
+    result += "</div>"
 
-        parent.classList.add("code-line-parent");
-        child.classList.add("code-line");
+    // scrollable
+    result += `<div class="scrollable">`
+    
+    // code
+    result += `<div class="codes">`
 
-        child.innerHTML = line;
+    trimmed_lines.forEach((line, i) => {
+        result += `<div class="code-line-parent"><div class="code-line">${line}</div></div>`;
+    })
 
-        parent.appendChild(child);
-        codes_holder.appendChild(parent)
+    result += "</div>"
+    result += "</div>"
+    result += "</div>"
+
+    return result;
+}
+
+function create_header_primary(content) {
+    return `<h1 class="text">${content}</h1>`;
+}
+
+function create_header_secondary(content) {
+    return `<h2 class="text">${content}</h1>`;
+}
+
+function create_paragraph(content) {
+    return `<div class="text">${content}</div>`;
+}
+
+function parse(content) {
+    let result = "";
+
+    const heading1Regex = /^# (.+)/;
+    const heading2Regex = /^## (.+)/;
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const codeBlockStartRegex = /^```/;
+    const inlineCodeRegex = /`([^`]+)`/g;
+
+    // Split the content by lines
+    const lines = content.split('\n');
+
+    let inCodeBlock = false;
+    let codeBlockContent = '';
+
+    lines.forEach(line => {
+        if (inCodeBlock) {
+            if (line.match(codeBlockStartRegex)) {
+                inCodeBlock = false;
+                result += create_code_block(codeBlockContent);
+                codeBlockContent = '';
+            } else {
+                codeBlockContent += line + '\n';
+            }
+        } else {
+            let match;
+            if (line.match(codeBlockStartRegex)) {
+                inCodeBlock = true;
+            } else if (match = line.match(heading1Regex)) {
+                result += create_header_primary(match[1]);
+            } else if (match = line.match(heading2Regex)) {
+                result += create_header_secondary(match[1]);
+            } else {
+                // Replace links and inline code in the paragraph
+                let replacedContent = line.replace(linkRegex, '<a href="$2">$1</a>');
+                replacedContent = replacedContent.replace(inlineCodeRegex, '<code>$1</code>');
+                result += create_paragraph(replacedContent);
+            }
+        }
     });
 
-    parent.appendChild(holder);
+    // Handle the case where the content ends while still inside a code block
+    if (inCodeBlock) {
+        create_code_block(codeBlockContent);
+    }
+
+    return result;
+}
+
+function writeFile(filePath, data) {
+    fs.writeFileSync(filePath, data);
+};
+
+function readFile(filePath) {
+    return fs.readFileSync(filePath, 'utf8');
+};
+
+function readDirectory(directoryPath) {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(files);
+            }
+        });
+    });
+}
+
+function getFilenameWithoutExtension(filePath) {
+    const baseName = path.basename(filePath);
+    const fileName = path.parse(baseName).name;
+    return fileName;
+}
+
+function generate_page(source_file, destination_directory) {
+    console.log(`parsing ${source_file}`);
+
+    const content_md = readFile(source_file);
+    const content = parse(content_md);
+    const page_name = getFilenameWithoutExtension(source_file);
+
+    const page = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="source/style/utilities.css">
+            <title>${page_name}</title>
+        </head>
+        <body>
+            <div id="main">
+            <div id="header"></div>
+            <div id="content">${content}</div>
+            <div id="footer"></div>
+        </body>
+        </html>
+    `;
+
+    const page_file = path.join(destination_directory, `${page_name}.html`);
+    console.log(`writing ${page_file}`);
+
+    writeFile(page_file, page)
 }
 
 function main() {
-    generate_code_block(code_1, "code-1");
-    generate_code_block(code_2, "code-2");
+    const source_directory = path.join(__dirname, '../content');
+    const destination_directory = path.join(__dirname, '../../');
+
+    readDirectory(source_directory)
+        .then(files => {
+            files.forEach(file => {
+                generate_page(path.join(source_directory, file), destination_directory);
+            })
+        })
+        .catch(err => {
+            console.error('error reading directory:', err);
+        });
 }
 
 main();
