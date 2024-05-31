@@ -315,6 +315,10 @@ function create_header_secondary(content) {
 }
 
 function create_paragraph(content) {
+    if(content.length == 0) {
+        return "";
+    }
+    
     return `<div class="text">${content}</div>`;
 }
 
@@ -325,6 +329,11 @@ function create_numbered_list(content) {
 function create_unordered_list(content) {
     return `<ul>\n${content}</ul>\n`;
 }
+
+function create_segment(content) {
+    return `<div class="text segment">${content}</div>`;
+}
+
 
 function parse(content) {
     let result = "";
@@ -338,6 +347,8 @@ function parse(content) {
     const italics_regex = /\*(.*?)\*|_(.*?)_/g;
     const numbered_list_item_regex = /^\d+\. (.+)/;
     const unordered_list_item_regex = /^[*-] (.+)/;
+    const segment_start_regex = /^{{segment}}/;
+    const segment_end_regex = /^{{endsegment}}/;
 
     const lines = content.split('\n');
 
@@ -346,9 +357,19 @@ function parse(content) {
     let in_numbered_list = false;
     let in_unordered_list = false;
     let list_content = '';
+    let in_segment = false;
+    let segment_content = '';
 
     lines.forEach(line => {
-        if (in_code_block) {
+        if (in_segment) {
+            if (line.match(segment_end_regex)) {
+                in_segment = false;
+                result += create_segment(parse(segment_content));
+                segment_content = '';
+            } else {
+                segment_content += line + '\n';
+            }
+        } else if (in_code_block) {
             if (line.match(code_block_start_regex)) {
                 in_code_block = false;
                 result += create_code_block(code_block_content);
@@ -358,7 +379,9 @@ function parse(content) {
             }
         } else {
             let match;
-            if (line.match(code_block_start_regex)) {
+            if (line.match(segment_start_regex)) {
+                in_segment = true;
+            } else if (line.match(code_block_start_regex)) {
                 in_code_block = true;
             } else if (match = line.match(heading_1_regex)) {
                 result += create_header_primary(match[1]);
@@ -439,7 +462,7 @@ function generate_page(source_file, destination_directory) {
             <div id="footer">
                 <div id="footer-content" class="tertiary-text">
                     <p>
-                        <a href="./index.html">Home</a> | 
+                        <a href="./main.html">Home</a> | 
                         <a href="./blog.html">Blog</a> | 
                         <a href="mailto: simontupy64@gmail.com">Email</a> |
                         <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
