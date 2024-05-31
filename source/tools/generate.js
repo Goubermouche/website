@@ -11,6 +11,32 @@ function is_composed_of(input, elements) {
     return regex.test(input);
 }
 
+function write_file(path, data) {
+    fs.writeFileSync(path, data);
+};
+
+function read_file(path) {
+    return fs.readFileSync(path, 'utf8');
+};
+
+function read_directory(path) {
+    return new Promise((resolve, reject) => {
+        fs.readdir(path, (err, files) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(files);
+            }
+        });
+    });
+}
+
+function get_filename(filePath) {
+    const base_name = path.basename(filePath);
+    const filename = path.parse(base_name).name;
+    return filename;
+}
+
 function create_code_block(code) {
     let result = "";
 
@@ -108,7 +134,15 @@ function create_code_block(code) {
     const replaced_words = words.map(word => {
         function replace_word(word) {
             const stripped_word = word.match(/\w+/) ? word.match(/\w+/)[0] : "";
-    
+            
+            // inline comments
+            if (/^\/\/[^\n]*$/.test(word)) {
+                return {
+                    token: "comment",
+                    value: word
+                }
+            }
+
             // control keywords
             if (control_keywords.includes(stripped_word)) {
                 return {
@@ -172,14 +206,6 @@ function create_code_block(code) {
                     value: word
                 }
             }
-
-            // inline comments
-            if (/^\/\/[^\n]*$/.test(word)) {
-                return {
-                    token: "comment",
-                    value: word
-                }
-            }
     
             // include directives
             if (/^#include\s*<[^>]+>$/.test(word) || /^#include\s*"[^"]+"$/.test(word)) {
@@ -229,19 +255,17 @@ function create_code_block(code) {
         switch(replaced.token)  {
             case "comment":
             case "type-keyword":
+            case "control-keyword":
             case "numerical-literal":
             case "text-literal":
             case "custom-type":
             case "enum-type":
+                if(replaced.value.slice(-1) == "(") {
+                    return `<span class="${replaced.token}">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
+                }
                 return `<span class="${replaced.token}">${replaced.value}</span>`;
             case "function-name":
                 return `<span class="function-name">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
-            case "control-keyword": {
-                if(replaced.value.slice(-1) == "(") {
-                    return `<span class="control-keyword">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
-                }
-                return `<span class="control-keyword">${replaced.value}</span>`;
-            }
             case "include": {
                 return `<span class="include-keyword">${replaced.value[0]}</span> <span class="include-path">${replaced.value[1]}</span>`;
             }
@@ -255,25 +279,24 @@ function create_code_block(code) {
     const last_non_empty_index = lines.length - 1 - lines.slice().reverse().findIndex(line => line.trim() !== '');
     const trimmed_lines = lines.slice(first_non_empty_index, last_non_empty_index + 1);
 
-    result += `<div class="holder code">`
+    result += `<div class="code-block">`
 
-    // lines
-    result += `<div class="lines">`
+    // line indices
+    result += `<div class="code-block-line-indices">`
 
     trimmed_lines.forEach((line, i) => {
-        result += `<div class="lines-index">${i + 1}</div>`;
+        result += `<div>${i + 1}</div>`;
     })
 
     result += "</div>"
 
-    // scrollable
-    result += `<div class="scrollable">`
+    result += `<div class="code-block-scroll-view">`
     
-    // code
-    result += `<div class="codes">`
+    // code block
+    result += `<div class="code-block-code">`
 
     trimmed_lines.forEach((line, i) => {
-        result += `<div class="code-line-parent"><div class="code-line">${line}</div></div>`;
+        result += `<div class="code-block-line-parent"><div class="code-block-line">${line}</div></div>`;
     })
 
     result += "</div>"
@@ -295,87 +318,111 @@ function create_paragraph(content) {
     return `<div class="text">${content}</div>`;
 }
 
+function create_numbered_list(content) {
+    return `<ol>\n${content}</ol>\n`;
+}
+
+function create_unordered_list(content) {
+    return `<ul>\n${content}</ul>\n`;
+}
+
 function parse(content) {
     let result = "";
 
-    const heading1Regex = /^# (.+)/;
-    const heading2Regex = /^## (.+)/;
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    const codeBlockStartRegex = /^```/;
-    const inlineCodeRegex = /`([^`]+)`/g;
+    const heading_1_regex = /^# (.+)/;
+    const heading_2_regex = /^## (.+)/;
+    const link_regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const code_block_start_regex = /^```/;
+    const inline_code_regex = /`([^`]+)`/g;
+    const bold_regex = /\*\*(.*?)\*\*|__(.*?)__/g;
+    const italics_regex = /\*(.*?)\*|_(.*?)_/g;
+    const numbered_list_item_regex = /^\d+\. (.+)/;
+    const unordered_list_item_regex = /^[*-] (.+)/;
 
-    // Split the content by lines
     const lines = content.split('\n');
 
-    let inCodeBlock = false;
-    let codeBlockContent = '';
+    let in_code_block = false;
+    let code_block_content = '';
+    let in_numbered_list = false;
+    let in_unordered_list = false;
+    let list_content = '';
 
     lines.forEach(line => {
-        if (inCodeBlock) {
-            if (line.match(codeBlockStartRegex)) {
-                inCodeBlock = false;
-                result += create_code_block(codeBlockContent);
-                codeBlockContent = '';
+        if (in_code_block) {
+            if (line.match(code_block_start_regex)) {
+                in_code_block = false;
+                result += create_code_block(code_block_content);
+                code_block_content = '';
             } else {
-                codeBlockContent += line + '\n';
+                code_block_content += line + '\n';
             }
         } else {
             let match;
-            if (line.match(codeBlockStartRegex)) {
-                inCodeBlock = true;
-            } else if (match = line.match(heading1Regex)) {
+            if (line.match(code_block_start_regex)) {
+                in_code_block = true;
+            } else if (match = line.match(heading_1_regex)) {
                 result += create_header_primary(match[1]);
-            } else if (match = line.match(heading2Regex)) {
+            } else if (match = line.match(heading_2_regex)) {
                 result += create_header_secondary(match[1]);
+            } else if (match = line.match(numbered_list_item_regex)) {
+                if (!in_numbered_list) {
+                    if (in_unordered_list) {
+                        result += create_unordered_list(list_content);
+                        in_unordered_list = false;
+                    }
+                    in_numbered_list = true;
+                    list_content = '';
+                }
+                list_content += `<li>${parse(match[1])}</li>\n`;
+            } else if (match = line.match(unordered_list_item_regex)) {
+                if (!in_unordered_list) {
+                    if (in_numbered_list) {
+                        result += create_numbered_list(list_content);
+                        in_numbered_list = false;
+                    }
+                    in_unordered_list = true;
+                    list_content = '';
+                }
+                list_content += `<li>${parse(match[1])}</li>\n`;
             } else {
-                // Replace links and inline code in the paragraph
-                let replacedContent = line.replace(linkRegex, '<a href="$2">$1</a>');
-                replacedContent = replacedContent.replace(inlineCodeRegex, '<code>$1</code>');
-                result += create_paragraph(replacedContent);
+                if (in_numbered_list) {
+                    result += create_numbered_list(list_content);
+                    in_numbered_list = false;
+                }
+                if (in_unordered_list) {
+                    result += create_unordered_list(list_content);
+                    in_unordered_list = false;
+                }
+                let replaced_content = line.replace(link_regex, '<a href="$2">$1</a>');
+                replaced_content = replaced_content.replace(inline_code_regex, '<code>$1</code>');
+                replaced_content = replaced_content.replace(bold_regex, '<strong>$1$2</strong>');
+                replaced_content = replaced_content.replace(italics_regex, '<em>$1$2</em>');
+                result += create_paragraph(replaced_content);
             }
         }
     });
 
-    // Handle the case where the content ends while still inside a code block
-    if (inCodeBlock) {
-        create_code_block(codeBlockContent);
+    if (in_code_block) {
+        result += create_code_block(code_block_content);
+    }
+
+    if (in_numbered_list) {
+        result += create_numbered_list(list_content);
+    }
+
+    if (in_unordered_list) {
+        result += create_unordered_list(list_content);
     }
 
     return result;
 }
 
-function writeFile(filePath, data) {
-    fs.writeFileSync(filePath, data);
-};
-
-function readFile(filePath) {
-    return fs.readFileSync(filePath, 'utf8');
-};
-
-function readDirectory(directoryPath) {
-    return new Promise((resolve, reject) => {
-        fs.readdir(directoryPath, (err, files) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(files);
-            }
-        });
-    });
-}
-
-function getFilenameWithoutExtension(filePath) {
-    const baseName = path.basename(filePath);
-    const fileName = path.parse(baseName).name;
-    return fileName;
-}
-
 function generate_page(source_file, destination_directory) {
     console.log(`parsing ${source_file}`);
 
-    const content_md = readFile(source_file);
+    const content_md = read_file(source_file);
     const content = parse(content_md);
-    const page_name = getFilenameWithoutExtension(source_file);
+    const page_name = get_filename(source_file);
 
     const page = `
         <!DOCTYPE html>
@@ -398,14 +445,14 @@ function generate_page(source_file, destination_directory) {
     const page_file = path.join(destination_directory, `${page_name}.html`);
     console.log(`writing ${page_file}`);
 
-    writeFile(page_file, page)
+    write_file(page_file, page)
 }
 
 function main() {
     const source_directory = path.join(__dirname, '../content');
     const destination_directory = path.join(__dirname, '../../');
 
-    readDirectory(source_directory)
+    read_directory(source_directory)
         .then(files => {
             files.forEach(file => {
                 generate_page(path.join(source_directory, file), destination_directory);

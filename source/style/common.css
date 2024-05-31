@@ -1,14 +1,8 @@
-@font-face {
-    font-family: 'Intel Mono';
-    src: url('../data/fonts/jetbrains_mono/JetBrainsMono-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
 :root {
     --background-primary: #171717;
     --background-secondary: #2f2f2f;
     --background-secondary-bright: #3b3b3b;
+    --background-tertiary: #404040;
 
     --text-primary: #ffffff;
     --text-secondary: #d8d8d8;
@@ -16,7 +10,7 @@
     --text-accent-primary-inactive: #75b6e7;
     --text-accent-primary-active: #75b6e7;
 
-    --heading-padding: 10px;
+    --element-margin: 10px;
 
     --regular-text-font: 'Segoe UI';
     --code-text-font: monospace;
@@ -33,28 +27,29 @@ body {
     font-size: 18px;
 }
 
+/*text*/
 h1 {
-    font-size: 30px;
     font-weight: 600;
+    font-size: 30px;
 }
 
 h2 {
-    font-size: 25px;
     font-weight: 600;
+    font-size: 25px;
 }
 
 .text {
+    margin-bottom: var(--element-margin);
     color: var(--text-primary);
-
-    margin-bottom: var(--heading-padding);
 }
 
 a {
+    margin-bottom: var(--element-margin);
+
     color: var(--text-accent-primary-inactive);
     text-decoration: none;
     font-weight: 600;
     font-size: 18px;
-    padding-bottom: var(--heading-padding);
 }
 
 a:hover{
@@ -62,25 +57,60 @@ a:hover{
     text-decoration: underline;
 }
 
-
-
-.code {
-    margin-bottom: var(--heading-padding);
-    font-family: var(--code-text-font);
-    font-size: 14px;
-
+/*codeblocks*/
+code {
     background-color: var(--background-secondary);
-    color: var(--text-primary);
+    padding: 0px 2px 0px 2px;
+
     font-family: var(--code-text-font);
-    border: 3px solid #404040;
+    color: var(--text-secondary);
 }
 
-.code-line-index{
-    color: var(--text-secondary);
-    width: 32px;
-    margin-right: 3px;
-    background-color: #404040;
+.code-block {
+    background-color: var(--background-secondary);
+    border: 3px solid var(--background-tertiary);
+    margin-bottom: var(--element-margin);
+    grid-template-columns: 32px auto;
+    display: grid;
+
+    font-family: var(--code-text-font);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.code-block-line-indices  {
+    background-color: var(--background-tertiary);
+    padding: 0px 4px 0px 2px;
     display: inline-block;
+
+    color: var(--text-secondary);
+}
+
+.code-block-code {
+    background-color: var(--background-secondary);
+    display: table;
+    width: 100%;
+}
+
+.code-block-line-parent {
+    background-color: var(--background-secondary);
+}
+
+.code-block-line-parent:hover {
+    background-color: var(--background-secondary-bright);
+}
+
+.code-block-line {
+    color: var(--text-primary);
+    white-space: pre;
+    height: 17px;
+    padding-left: 3px;
+}
+
+.code-block-scroll-view {
+    scrollbar-color: var(--text-secondary) #404040;
+    scrollbar-width: thin;
+    overflow-x: auto;
 }
 
 .control-keyword {
@@ -129,48 +159,7 @@ a:hover{
     color: #b4b4b4;
 }
 
-.holder {
-    display: grid;
-    grid-template-columns: 32px auto;
-    margin-bottom: 10px;
-}
-
-.lines  {
-    background-color: #404040;
-    display: inline-block;
-}
-
-.lines-index {
-    color: var(--text-secondary);
-    padding-left: 2px;
-    padding-right: 4px;
-}
-
-.scrollable {
-    overflow-x: auto;
-    scrollbar-color: var(--text-secondary) #404040;
-    scrollbar-width: thin;
-}
-
-.codes {
-    background-color: red;
-    display: table;
-    width: 100%;
-}
-
-.code-line-parent {
-    background-color: var(--background-secondary);
-}
-
-.code-line-parent:hover {
-    background-color: var(--background-secondary-bright);
-}
-
-.code-line {
+/*lists*/
+ol, ul {
     color: var(--text-primary);
-    white-space: pre;
-    height: 17px;
-    padding-left: 3px;
 }
-
-
