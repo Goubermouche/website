@@ -393,7 +393,7 @@ function parse(content) {
                     result += create_unordered_list(list_content);
                     in_unordered_list = false;
                 }
-                let replaced_content = line.replace(link_regex, '<a href="$2">$1</a>');
+                let replaced_content = line.replace(link_regex, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
                 replaced_content = replaced_content.replace(inline_code_regex, '<code>$1</code>');
                 replaced_content = replaced_content.replace(bold_regex, '<strong>$1$2</strong>');
                 replaced_content = replaced_content.replace(italics_regex, '<em>$1$2</em>');
@@ -434,10 +434,23 @@ function generate_page(source_file, destination_directory) {
             <title>${page_name}</title>
         </head>
         <body>
-            <div id="main">
             <div id="header"></div>
             <div id="content">${content}</div>
-            <div id="footer"></div>
+            <div id="footer">
+                <div id="footer-content" class="tertiary-text">
+                    <p>
+                        <a href="./index.html">Home</a> | 
+                        <a href="./blog.html">Blog</a> | 
+                        <a href="mailto: simontupy64@gmail.com">Email</a> |
+                        <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
+                        <a href="https://twitter.com/goubermouche">Twitter</a> | 
+                        <a href="https://github.com/Goubermouche">GitHub</a> 
+                    </p>
+                    <p>
+                        &copy; 2024 goubermouche.com 
+                    </p>
+                </div>
+            </div>
         </body>
         </html>
     `;
