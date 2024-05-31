@@ -430,7 +430,7 @@ function generate_page(source_file, destination_directory) {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="source/style/utilities.css">
+            <link rel="stylesheet" href="source/style/common.css">
             <title>${page_name}</title>
         </head>
         <body>
