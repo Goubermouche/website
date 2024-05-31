@@ -1,0 +1,11 @@
+*
+
+!source/
+!source/**
+
+!index.*
+
+source/*
+!source/**
+
+!.gitignore
