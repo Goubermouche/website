@@ -3,19 +3,19 @@
 
 const code_1 = `
 float Q_rsqrt(float number) {
-  long i;
-  float x2, y;
-  const float threehalfs = 1.0f;
+    long i;
+    float x2, y;
+    const float threehalfs = 1.0f;
 
-  x2 = number * 0.5f;
-  y  = number;
-  i  = *(long*)&y;                       // evil floating point bit level hacking
-  i  = 0x5f3759df - (i >> 1);            // what the fuck?
-  y  = *(float*)&i;
-  y  = y * (threehalfs - (x2 * y * y));  // 1st iteration
-  // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
+    x2 = number * 0.5f;
+    y  = number;
+    i  = *(long*)&y;                       // evil floating point bit level hacking
+    i  = 0x5f3759df - (i >> 1);            // what the fuck?
+    y  = *(float*)&i;
+    y  = y * (threehalfs - (x2 * y * y));  // 1st iteration
+    // y  = y  = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
 
-  return y;
+    return y;
 }
 `;
 
@@ -131,6 +131,8 @@ function is_composed_of(input, elements) {
     const regex = new RegExp(`^(${escaped_elements})+$`);
     return regex.test(input);
 }
+
+
 
 function generate_code_block(code, parent_id) {
     const parent = document.getElementById(parent_id);
@@ -368,7 +370,21 @@ function generate_code_block(code, parent_id) {
         return replaced;
     });
 
-    parent.innerHTML = `<pre class="code">${replaced_words.join('')}</pre>`;
+    const lines = replaced_words.join('').split(/\r?\n/);
+    const first_non_empty_index = lines.findIndex(line => line.trim() !== '');
+    const last_non_empty_index = lines.length - 1 - lines.slice().reverse().findIndex(line => line.trim() !== '');
+    const trimmed_lines = lines.slice(first_non_empty_index, last_non_empty_index + 1);
+
+    parent.innerHTML = "";
+
+    const code_holder = document.createElement("div");
+    code_holder.classList = "code"
+
+    trimmed_lines.forEach((line, i) => {
+        code_holder.innerHTML += `<div class="code-line"><span class="code-line-index">${i + 1}</span>${line}</div>`;
+    });
+
+    parent.appendChild(code_holder);
 }
 
 function main() {

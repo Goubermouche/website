@@ -8,6 +8,7 @@
 :root {
     --background-primary: #171717;
     --background-secondary: #2f2f2f;
+    --background-secondary-bright: #3b3b3b;
 
     --text-primary: #ffffff;
     --text-secondary: #d8d8d8;
@@ -77,12 +78,34 @@ a:hover{
 }
 
 .code {
-    padding: 16px 16px 20px 20px;
     font-size: 14px;
+    margin-bottom: var(--heading-padding);
+
     background-color: var(--background-secondary);
     color: var(--text-primary);
     font-family: var(--code-text-font);
-    border-left: 5px solid #404040;
+    border: 3px solid #404040;
+    /*border-left: 5px solid #404040;*/
+}
+
+.code-line {
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    font-family: var(--code-text-font);
+    white-space: pre-wrap;
+    overflow: auto;
+}
+
+.code-line:hover{
+    background-color: var(--background-secondary-bright);
+}
+
+.code-line-index{
+    color: var(--text-secondary);
+    width: 32px;
+    margin-right: 3px;
+    background-color: #404040;
+    display: inline-block;
 }
 
 .control-keyword {
