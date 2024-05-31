@@ -24,6 +24,7 @@ I'm an open-source enthusiast and founder of the following open-source projects:
 - [Sigma](https://github.com/Goubermouche/sigma) - Simple data oriented programming language with no dependencies.
 - [VFD](https://github.com/Goubermouche/VFD) - Real-time fluid simulator written in CUDA.
 - Baremetal - WIP x64 assembler with a JIT interface.
+- [Utilities](./utilities.html) - Simple utility package with tools I tend to use often.
 {{endsegment}}
 
 ## Other Links

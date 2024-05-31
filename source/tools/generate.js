@@ -11,25 +11,52 @@ function is_composed_of(input, elements) {
     return regex.test(input);
 }
 
-function write_file(path, data) {
-    fs.writeFileSync(path, data);
-};
+function write_file(filepath, data) {
+    const dir = path.dirname(filepath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(filepath, data);
+}
 
 function read_file(path) {
     return fs.readFileSync(path, 'utf8');
 };
 
-function read_directory(path) {
-    return new Promise((resolve, reject) => {
-        fs.readdir(path, (err, files) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(files);
-            }
-        });
+async function read_directory_rec(directory_path, relativePath) {
+    const entries = await fs.promises.readdir(directory_path, { withFileTypes: true });
+
+    const files = await Promise.all(entries.map(async (entry) => {
+        const full = path.join(directory_path, entry.name);
+        const rel = path.join(relativePath, entry.name);
+        if (entry.isDirectory()) {
+            return read_directory_rec(full, rel);
+        } else {
+            return rel;
+        }
+    }));
+
+    return Array.prototype.concat(...files);
+}
+
+function read_directory(directory_path) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const result = await read_directory_rec(directory_path, '');
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        }
     });
 }
+
+function get_folder_depth(filepath) {
+    const segments = filepath.split(path.sep);
+    const non_empty = segments.filter(segment => segment.length > 0);
+    return non_empty.length - 1;
+}
+
 
 function get_filename(filePath) {
     const base_name = path.basename(filePath);
@@ -37,20 +64,27 @@ function get_filename(filePath) {
     return filename;
 }
 
+function format_document_heading(input) {
+    let words = input.split('-');
+    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+    let result = words.join(' ');
+    return result;
+}
+
 function create_code_block(code) {
     let result = "";
 
     const control_keywords = [
-        "if", "else", "switch", "case", 
-        "default", "do", "while", "for", 
+        "if", "else", "switch", "case",
+        "default", "do", "while", "for",
         "break", "continue", "return",
         "goto", "try", "catch", "throw"
     ];
-    
+
     const type_keywords = [
-        "bool", "char", 
+        "bool", "char",
         "short", "int", "long", "signed",
-        "unsigned", "float", "double", 
+        "unsigned", "float", "double",
         "void", "auto", "decltype", "const",
         "volatile", "mutable", "static",
         "extern", "register", "thread_local",
@@ -76,7 +110,7 @@ function create_code_block(code) {
     ];
 
     const operators = [
-        '>', '<',',', '{', '}', '(', ')', '+', '-', 
+        '>', '<', ',', '{', '}', '(', ')', '+', '-',
         '*', '/', '%', '++', '--', '==', '!=', '<=',
         '>=', '&&', '||', '!', '&', '|', '^', '~',
         '<<', '>>', '+=', '-=', '*=', '/=', '%=',
@@ -88,8 +122,8 @@ function create_code_block(code) {
     const words = code.match(regex);
 
     let custom_type_names = [
-        "size_t", "char8_t",  "char16_t",
-        "char32_t", "wchar_t", "int8_t", 
+        "size_t", "char8_t", "char16_t",
+        "char32_t", "wchar_t", "int8_t",
         "int16_t", "int32_t", "int64_t",
         "uint8_t", "uint16_t", "uint32_t",
         "uint64_t"
@@ -134,7 +168,7 @@ function create_code_block(code) {
     const replaced_words = words.map(word => {
         function replace_word(word) {
             const stripped_word = word.match(/\w+/) ? word.match(/\w+/)[0] : "";
-            
+
             // inline comments
             if (/^\/\/[^\n]*$/.test(word)) {
                 return {
@@ -150,15 +184,15 @@ function create_code_block(code) {
                     value: word
                 }
             }
-    
+
             // type keywords
-            if(type_keywords.includes(stripped_word)) {
+            if (type_keywords.includes(stripped_word)) {
                 return {
                     token: "type-keyword",
                     value: word
                 }
             }
-    
+
             // string literals
             if (/^"(?:\\.|[^"\\])*"$/.test(word)) {
                 return {
@@ -166,7 +200,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-    
+
             // char literals
             if (/^'(?:\\.|[^'\\])'$/.test(word)) {
                 return {
@@ -174,7 +208,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-    
+
             // hex literals
             if (/\b0[xX][0-9a-fA-F]+\b/.test(word)) {
                 return {
@@ -182,7 +216,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-        
+
             // binary literals
             if (/\b0[bB][01]+\b/.test(word)) {
                 return {
@@ -190,7 +224,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-        
+
             // floating point literals
             if (/\b\d+(\.\d+)?([fF])?\b/.test(word)) {
                 return {
@@ -198,7 +232,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-    
+
             // function declarations and calls
             if (/\w+\s*\($/.test(word)) {
                 return {
@@ -206,7 +240,7 @@ function create_code_block(code) {
                     value: word
                 }
             }
-    
+
             // include directives
             if (/^#include\s*<[^>]+>$/.test(word) || /^#include\s*"[^"]+"$/.test(word)) {
                 const parts = word.match(/(#include)\s*(<[^>]+>|"[^"]+")/);
@@ -215,9 +249,9 @@ function create_code_block(code) {
                     value: [parts[1], parts[2].replace(/</g, "&lt;").replace(/>/g, "&gt;")]
                 }
             }
-    
+
             // custom type names
-            if(custom_type_names.includes(stripped_word)) {
+            if (custom_type_names.includes(stripped_word)) {
                 return {
                     token: "custom-type",
                     value: word
@@ -225,7 +259,7 @@ function create_code_block(code) {
             }
 
             // enum type names
-            if(enum_type_names.includes(stripped_word)) {
+            if (enum_type_names.includes(stripped_word)) {
                 return {
                     token: "enum-type",
                     value: word
@@ -242,9 +276,9 @@ function create_code_block(code) {
         const replaced = replace_word(word);
 
         // identifiers
-        if(replaced.token === undefined) {
+        if (replaced.token === undefined) {
             // identifiers can be composed only from operators, if this occurs we need to treat them as such
-            if(is_composed_of(replaced.value, operators)) {
+            if (is_composed_of(replaced.value, operators)) {
                 return `<span class="operator">${replaced.value}</span>`
             }
 
@@ -252,7 +286,7 @@ function create_code_block(code) {
         }
 
         // special cases for classified tokens
-        switch(replaced.token)  {
+        switch (replaced.token) {
             case "comment":
             case "type-keyword":
             case "control-keyword":
@@ -260,7 +294,7 @@ function create_code_block(code) {
             case "text-literal":
             case "custom-type":
             case "enum-type":
-                if(replaced.value.slice(-1) == "(") {
+                if (replaced.value.slice(-1) == "(") {
                     return `<span class="${replaced.token}">${replaced.value.substr(0, replaced.value.length - 1)}</span><span class="operator">(</span>`;
                 }
                 return `<span class="${replaced.token}">${replaced.value}</span>`;
@@ -291,7 +325,7 @@ function create_code_block(code) {
     result += "</div>"
 
     result += `<div class="code-block-scroll-view">`
-    
+
     // code block
     result += `<div class="code-block-code">`
 
@@ -315,10 +349,10 @@ function create_header_secondary(content) {
 }
 
 function create_paragraph(content) {
-    if(content.length == 0) {
+    if (content.length == 0) {
         return "";
     }
-    
+
     return `<div class="text">${content}</div>`;
 }
 
@@ -440,12 +474,16 @@ function parse(content) {
     return result;
 }
 
-function generate_page(source_file, destination_directory) {
-    console.log(`parsing ${source_file}`);
+function generate_page(source_file, source_directory, destination_directory) {
+    const full_path = path.join(source_directory, source_file);
 
-    const content_md = read_file(source_file);
+    console.log(`parsing ${full_path}`);
+
+    const content_md = read_file(full_path);
     const content = parse(content_md);
     const page_name = get_filename(source_file);
+
+    const style_path = `./${"../".repeat(get_folder_depth(source_file))}/source/style/common.css`;
 
     const page = `
         <!DOCTYPE html>
@@ -453,8 +491,9 @@ function generate_page(source_file, destination_directory) {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="source/style/common.css">
-            <title>${page_name}</title>
+            <link rel="stylesheet" href="${style_path}">
+            <link rel="icon" type="image/x-icon" href="/source/data/favicon.ico">
+            <title>${format_document_heading(page_name)}</title>
         </head>
         <body>
             <div id="header"></div>
@@ -462,8 +501,8 @@ function generate_page(source_file, destination_directory) {
             <div id="footer">
                 <div id="footer-content">
                     <div id="footer-links">
-                        <a href="./main.html">Home</a> | 
-                        <a href="./blog.html">Blog</a> | 
+                        <a href="/main.html">Home</a> | 
+                        <a href="/blog.html">Blog</a> | 
                         <a href="mailto: simontupy64@gmail.com">Email</a> |
                         <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
                         <a href="https://twitter.com/goubermouche">Twitter</a> | 
@@ -491,7 +530,7 @@ function generate_page(source_file, destination_directory) {
         </html>
     `;
 
-    const page_file = path.join(destination_directory, `${page_name}.html`);
+    const page_file = path.join(destination_directory, source_file.replace(".md", ".html"));
     console.log(`writing ${page_file}`);
 
     write_file(page_file, page)
@@ -504,12 +543,13 @@ function main() {
     read_directory(source_directory)
         .then(files => {
             files.forEach(file => {
-                generate_page(path.join(source_directory, file), destination_directory);
+                generate_page(file, source_directory, destination_directory);
             })
         })
         .catch(err => {
             console.error('error reading directory:', err);
         });
+
 }
 
 main();
