@@ -1,3 +1,4 @@
+const { captureRejectionSymbol } = require('events');
 const fs = require('fs');
 const path = require('path');
 
@@ -56,7 +57,6 @@ function get_folder_depth(filepath) {
     const non_empty = segments.filter(segment => segment.length > 0);
     return non_empty.length - 1;
 }
-
 
 function get_filename(filePath) {
     const base_name = path.basename(filePath);
@@ -344,200 +344,536 @@ function create_code_block(code) {
     return result;
 }
 
-function create_header_primary(content) {
-    return `<h1 class="text">${content}</h1>`;
-}
-
-function create_header_secondary(content) {
-    return `<h2 class="text">${content}</h1>`;
-}
-
-function create_paragraph(content) {
-    if (content.length == 0) {
-        return "";
-    }
-
-    return `<div class="text">${content}</div>`;
-}
-
-function create_numbered_list(content) {
-    return `<ol>\n${content}</ol>\n`;
-}
-
-function create_unordered_list(content) {
-    return `<ul>\n${content}</ul>\n`;
-}
-
-function create_segment(content) {
-    return `<div class="text segment">${content}</div>`;
-}
-
-
-function parse(content) {
-    let result = "";
-
-    const heading_1_regex = /^# (.+)/;
-    const heading_2_regex = /^## (.+)/;
-    const link_regex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    const code_block_start_regex = /^```/;
-    const inline_code_regex = /`([^`]+)`/g;
-    const bold_regex = /\*\*(.*?)\*\*|__(.*?)__/g;
-    const italics_regex = /\*(.*?)\*|_(.*?)_/g;
-    const numbered_list_item_regex = /^\d+\. (.+)/;
-    const unordered_list_item_regex = /^[*-] (.+)/;
-    const segment_start_regex = /^{{segment}}/;
-    const segment_end_regex = /^{{endsegment}}/;
-
-    const lines = content.split('\n');
-
-    let in_code_block = false;
-    let code_block_content = '';
-    let in_numbered_list = false;
-    let in_unordered_list = false;
-    let list_content = '';
-    let in_segment = false;
-    let segment_content = '';
-
-    lines.forEach(line => {
-        if (in_segment) {
-            if (line.match(segment_end_regex)) {
-                in_segment = false;
-                result += create_segment(parse(segment_content));
-                segment_content = '';
-            } else {
-                segment_content += line + '\n';
-            }
-        } else if (in_code_block) {
-            if (line.match(code_block_start_regex)) {
-                in_code_block = false;
-                result += create_code_block(code_block_content);
-                code_block_content = '';
-            } else {
-                code_block_content += line + '\n';
-            }
-        } else {
-            let match;
-            if (line.match(segment_start_regex)) {
-                in_segment = true;
-            } else if (line.match(code_block_start_regex)) {
-                in_code_block = true;
-            } else if (match = line.match(heading_1_regex)) {
-                result += create_header_primary(match[1]);
-            } else if (match = line.match(heading_2_regex)) {
-                result += create_header_secondary(match[1]);
-            } else if (match = line.match(numbered_list_item_regex)) {
-                if (!in_numbered_list) {
-                    if (in_unordered_list) {
-                        result += create_unordered_list(list_content);
-                        in_unordered_list = false;
-                    }
-                    in_numbered_list = true;
-                    list_content = '';
-                }
-                list_content += `<li>${parse(match[1])}</li>\n`;
-            } else if (match = line.match(unordered_list_item_regex)) {
-                if (!in_unordered_list) {
-                    if (in_numbered_list) {
-                        result += create_numbered_list(list_content);
-                        in_numbered_list = false;
-                    }
-                    in_unordered_list = true;
-                    list_content = '';
-                }
-                list_content += `<li>${parse(match[1])}</li>\n`;
-            } else {
-                if (in_numbered_list) {
-                    result += create_numbered_list(list_content);
-                    in_numbered_list = false;
-                }
-                if (in_unordered_list) {
-                    result += create_unordered_list(list_content);
-                    in_unordered_list = false;
-                }
-                let replaced_content = line.replace(link_regex, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-                replaced_content = replaced_content.replace(inline_code_regex, '<code>$1</code>');
-                replaced_content = replaced_content.replace(bold_regex, '<strong>$1$2</strong>');
-                replaced_content = replaced_content.replace(italics_regex, '<em>$1$2</em>');
-                result += create_paragraph(replaced_content);
-            }
-        }
-    });
-
-    if (in_code_block) {
-        result += create_code_block(code_block_content);
-    }
-
-    if (in_numbered_list) {
-        result += create_numbered_list(list_content);
-    }
-
-    if (in_unordered_list) {
-        result += create_unordered_list(list_content);
-    }
-
-    return result;
-}
-
 function generate_page(source_file, source_directory, destination_directory) {
     const full_path = path.join(source_directory, source_file);
 
     console.log(`parsing ${full_path}`);
 
-    const content_md = read_file(full_path);
-    const content = parse(content_md);
     const page_name = get_filename(source_file);
+    const t = new tokenizer();
+    const p = new parser();
 
-    const style_path = `./${"../".repeat(get_folder_depth(source_file))}/source/style/common.css`;
+    const content_md = read_file(full_path);
+    const tokens = t.tokenize(content_md);
 
-    const page = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="${style_path}">
-            <link rel="icon" type="image/x-icon" href="/source/data/favicon.ico">
-            <title>${format_document_heading(page_name)}</title>
-        </head>
-        <body>
-            <div id="header"></div>
-            <div id="content">${content}</div>
-            <div id="footer">
-                <div id="footer-content">
-                    <div id="footer-links">
-                        <a href="/index.html">Home</a> | 
-                        <a href="/blog.html">Blog</a> | 
-                        <a href="mailto: simontupy64@gmail.com">Email</a> |
-                        <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
-                        <a href="https://twitter.com/goubermouche">Twitter</a> | 
-                        <a href="https://github.com/Goubermouche">GitHub</a> 
-                    </div>
-                    <div id="footer-parsed-time">
-                        <span id="parsed_time"></span>
-                    </div>
-                    <div id="footer-copyright">
-                        &copy; 2024 goubermouche.com 
+    try {
+        const content = p.parse(tokens);
+        const style_path = `./${"../".repeat(get_folder_depth(source_file))}/source/style/common.css`;
+
+        const page = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" href="${style_path}">
+                <link rel="icon" type="image/x-icon" href="/source/data/favicon.ico">
+                <title>${format_document_heading(page_name)}</title>
+            </head>
+            <body>
+                <div id="header"></div>
+                <div id="content">${content}</div>
+                <div id="footer">
+                    <div id="footer-content">
+                        <div id="footer-links">
+                            <a href="/index.html">Home</a> | 
+                            <a href="/blog.html">Blog</a> | 
+                            <a href="mailto: simontupy64@gmail.com">Email</a> |
+                            <a href="https://twitter.com/goubermouche">Twitter</a> | 
+                            <a href="https://github.com/Goubermouche">GitHub</a> 
+                        </div>
+                        <div id="footer-parsed-time">
+                            <span id="parsed_time"></span>
+                        </div>
+                        <div id="footer-copyright">
+                            &copy; 2024 goubermouche.com 
+                        </div>
                     </div>
                 </div>
-            </div>
-            <script>
-                const parsed_date_string = "${(new Date()).toString()}";
-                const parsed_date = new Date(parsed_date_string);
-                const current_date = new Date();
+                <script>
+                    const parsed_date_string = "${(new Date()).toString()}";
+                    const parsed_date = new Date(parsed_date_string);
+                    const current_date = new Date();
+    
+                    const difference_in_milliseconds = current_date - parsed_date;
+                    const difference_in_days = difference_in_milliseconds / (1000 * 60 * 60 * 24);
+                
+                    document.getElementById("parsed_time").innerHTML = \`Updated \${difference_in_days.toFixed(2)} days ago\`;
+                </script>
+            </body>
+            </html>
+        `;
+    
+        const page_file = path.join(destination_directory, source_file.replace(".md", ".html"));
+        console.log(`writing ${page_file}`);
+    
+        write_file(page_file, page)
+    }
+    catch(error){
+        console.error(error);
+    }
+}
 
-                const difference_in_milliseconds = current_date - parsed_date;
-                const difference_in_days = difference_in_milliseconds / (1000 * 60 * 60 * 24);
+const token_type = Object.freeze({
+    hashtag:           "hashtag",           // #
+    backtick:          "backtick",          // `
+    left_parenthesis:  "left_parenthesis",  // (
+    right_parenthesis: "right_parenthesis", // )
+    left_bracket:      "left_bracket",      // [
+    right_bracket:     "right_bracket",     // ]
+    left_brace:        "left_brace",        // {
+    right_brace:       "right_brace",       // }
+    vertical_bar:      "vertical_bar",      // |
+    text:              "text",              
+    dollar_sign:       "dollar_sign",       // $   
+    exclamation_mark:  "exclamation_mark",  // !      
+    asterisk:          "asterisk",          // *     
+    dash:              "dash",              // -    
+    newline:           "newline",           // \n  
+});
+
+class tokenizer {
+    tokenize(string) {
+        const special_chars = new Map([
+            ["#", token_type.hashtag],
+            ["`", token_type.backtick],
+            ["(", token_type.left_parenthesis],
+            [")", token_type.right_parenthesis],
+            ["[", token_type.left_bracket],
+            ["]", token_type.right_bracket],
+            ["{", token_type.left_brace],
+            ["}", token_type.right_brace],
+            ["|", token_type.vertical_bar],
+            ["$", token_type.dollar_sign],
+            ["!", token_type.exclamation_mark],
+            ["*", token_type.asterisk],
+            ["-", token_type.dash],
+            ["\n", token_type.newline],
+        ]);
+
+        let current_index = 0;
+        let current_text = "";
+        let tokens = [];
+
+        function push_text() {
+            if(current_text == "") {
+                return;
+            }
+
+            tokens.push({
+                type: token_type.text,
+                value: current_text
+            });
             
-                document.getElementById("parsed_time").innerHTML = \`Updated \${difference_in_days.toFixed(2)} days ago\`;
-            </script>
-        </body>
-        </html>
-    `;
+            current_text = "";
+        }
 
-    const page_file = path.join(destination_directory, source_file.replace(".md", ".html"));
-    console.log(`writing ${page_file}`);
+        while(current_index != string.length) {
+            const current_char = string[current_index++];
 
-    write_file(page_file, page)
+            if(current_char == '\r') {
+                continue;
+            }
+
+            if(special_chars.has(current_char)) {
+                push_text();
+
+                tokens.push({
+                    type: special_chars.get(current_char),
+                    value: current_char
+                })
+            }
+            else {
+                current_text += current_char;
+            }
+        }
+
+        if(current_text != "") {
+            push_text();
+        }
+
+        return tokens;
+    }
+}
+
+class parser {
+    parse(tokens) {
+        let current_token;
+        let index = 0;
+
+        function peek_next() {
+            return tokens[index + 1].type;
+        }
+
+        function next() {
+            index++;
+        }
+
+        function expect_current(expected) {
+            const current = tokens[index];
+
+            if(current.type != expected) {
+                throw new Error(`unexpected token - expected '${expected}', but got '${next.type}'`);
+            }
+
+            return current.value;
+        }
+
+        function expect_next(expected) {
+            index++;
+            const next = tokens[index];
+
+            if(next.type != expected) {
+                throw new Error(`unexpected token - expected '${expected}', but got '${next.type}'`);
+            }
+
+            return next.value;
+        }
+
+        function parse_heading() {
+            expect_current(token_type.hashtag);
+
+            let level = 1;
+
+            if(peek_next() == token_type.hashtag) {
+                level = 2;
+                next();
+            }
+
+            const contents = expect_next(token_type.text);
+            next();
+
+            return `<h${level} class="text">${contents.trim()}</h${level}>\n`;
+        }
+
+        function parse_link_contents() {
+            let contents = "";
+            let address = "";
+
+            expect_current(token_type.left_bracket);
+
+            next();
+            contents += tokens[index].value;
+
+            while(true) {
+                next();
+
+                if(tokens[index].type === token_type.right_bracket) {
+                    break;
+                }
+
+                contents += tokens[index].value;
+            }
+
+            expect_next(token_type.left_parenthesis);
+
+            next();
+            address += tokens[index].value;
+
+            while(true) {
+                next();
+
+                if(tokens[index].type === token_type.right_parenthesis) {
+                    break;
+                }
+
+                address += tokens[index].value;
+            }
+
+            next();
+            next();
+
+            return {
+                address: address,
+                contents: contents
+            }
+        }
+
+        function parse_link() {
+            const link = parse_link_contents();
+            return `<a href="${link.address}">${link.contents}</a>\n`;
+        }
+
+        function parse_view() {
+            expect_current(token_type.dollar_sign);
+            next();
+            const link = parse_link_contents();
+            return "";
+        }
+
+        function parse_image() {
+            expect_current(token_type.exclamation_mark);
+            next();
+            try {
+                const link = parse_link_contents();
+                return `<img src="${link.address}" alt="${link.contents}">\n`;
+            } catch(error) {
+                return "!" + tokens[index].value;
+            }
+        }
+
+        function parse_code() {
+            expect_current(token_type.backtick);
+            let content = "";
+
+            if(peek_next() == token_type.backtick) {
+                // multiline block
+                expect_next(token_type.backtick);
+                expect_next(token_type.backtick);
+                next();
+
+                while(true) {
+                    content += tokens[index].value;
+
+                    if(peek_next() == token_type.backtick) {
+                        break;
+                    }
+
+                    index++;
+                }
+
+                expect_next(token_type.backtick);
+                expect_next(token_type.backtick);
+                expect_next(token_type.backtick);
+                next();
+                return create_code_block(content);
+            }
+            else {
+                next();
+
+                // inline block
+                while(true) {
+                    content += tokens[index].value;
+
+                    if(peek_next() == token_type.backtick) {
+                        break;
+                    }
+
+                    index++;
+                }
+                next(); // backtick
+                next(); // prime next
+                return `<code>${content}</code>\n`;
+            }
+        }
+
+        function consume_whitespace() {
+            while(index + 1 < tokens.length && tokens[index].type != token_type.newline && tokens[index].value.trim().length == 0) {
+                index++;
+            }
+        }
+
+        function parse_table() {
+            function parse_table_row() {
+                let cells = [];
+
+                while(index + 1 < tokens.length) {
+                    expect_current(token_type.vertical_bar);
+                    next(); // prime next
+
+                    const content = parse_inline();
+                    consume_whitespace();
+
+                    if(content.trim().length == 0) {
+                        break;
+                    }
+
+                    if(tokens[index].type === token_type.newline) {
+                        next();
+                        break;
+                    }
+
+                    cells.push(`<th>${content}</th>`);
+                }
+
+                return cells.join("");
+            }
+
+            expect_current(token_type.vertical_bar);
+            let rows = [];
+
+            while(index + 1 < tokens.length) {
+                if(tokens[index].type !== token_type.vertical_bar) {
+                    break;
+                }
+
+                rows.push(`<tr>${parse_table_row()}</tr>\n`);
+            }
+
+            return `<table>\n${rows.join("")}</table>`;
+        }
+
+        function parse_bold_or_italic() {
+            expect_current(token_type.asterisk);
+            let content = "";
+
+            if(peek_next() == token_type.asterisk) {
+                // bold
+                next();
+                next();
+
+                while(true) {
+                    content += tokens[index].value;
+
+                    if(peek_next() == token_type.asterisk) {
+                        break;
+                    }
+
+                    index++;
+                }
+
+                expect_next(token_type.asterisk);
+                expect_next(token_type.asterisk);
+                next();
+                return `<b>${content}</b>\n`;
+            }
+            else {
+                // asterisk
+                next();
+
+                while(true) {
+                    content += tokens[index].value;
+
+                    if(peek_next() == token_type.asterisk) {
+                        break;
+                    }
+
+                    index++;
+                }
+                
+                next(); 
+                next(); // prime next
+                return `<i>${content}</i>\n`;
+            }
+        }
+
+        function parse_segment() {
+            expect_current(token_type.left_brace);
+            next();
+
+            let content = "";
+
+            while(index + 1 < tokens.length && tokens[index].type !== token_type.right_brace) {
+                content += parse_expression();
+            }
+           
+            next();
+            return `<div class="segment">\n${content}</div>\n`
+        }
+
+        function skip_newline() {
+            while(index < tokens.length && tokens[index].type === token_type.newline) {
+                next();
+            }
+        }
+
+        function parse_list() {
+            function parse_list_element() {
+                expect_current(token_type.dash);
+                next();
+                const content = parse_inline();
+                return content;
+            }
+
+            let list = [];
+
+            while(index < tokens.length && tokens[index].type === token_type.dash) {
+                list.push(`<li>${parse_list_element()}</li>`);
+            }
+
+            return `<ul>${list.join("\n")}</ul>`;
+        }
+
+        function parse_inline() {
+            let content = "";
+            
+            // parses until we reach a newline
+            while(index < tokens.length && tokens[index].type !== token_type.newline) {
+                current_token = tokens[index];
+
+                switch(current_token.type) {
+                    case token_type.hashtag: {
+                        content += parse_heading();
+                        break;
+                    }
+                    case token_type.asterisk: {
+                        content += parse_bold_or_italic();
+                        break;
+                    }
+                    case token_type.backtick: {
+                        content += parse_code();
+                        break;
+                    }
+                    case token_type.left_bracket: {
+                        content += parse_link();
+                        break;
+                    }
+                    case token_type.dollar_sign: {
+                        content += parse_view();
+                        break;
+                    }
+                    case token_type.exclamation_mark: {
+                        content += parse_image();
+                        break;
+                    }
+                    case token_type.vertical_bar: {
+                        return content;
+                    }
+                    default: {
+                        content += current_token.value;
+                        next();
+                        break;
+                    }
+                }
+            }
+
+
+            next();
+
+            if(content.trim().length == 0) {
+                return "";
+            }
+
+            return `<div class="text">${content}</div>`;
+        }
+
+        function parse_expression() {
+            // list
+            current_token = tokens[index];
+
+            switch(current_token.type) {
+                case token_type.dash: {
+                    return parse_list();
+                }
+                case token_type.left_brace: {
+                    return parse_segment();
+                } 
+                case token_type.vertical_bar: {
+                    return parse_table();
+                } 
+                default: {
+                    let res =  parse_inline();
+                    return res;
+                }
+            }
+        }
+
+        function parse_top_level() {
+            let content = "";
+
+            while(index + 1 < tokens.length) {
+                skip_newline();
+
+                if(index + 1 < tokens.length) {
+                    content += parse_expression();
+                }
+            }
+    
+            return content;
+        }
+
+        return parse_top_level();
+    }
 }
 
 function main() {
