@@ -1,11 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="source/style/index.css">
-    <title>Goubermouche</title>
-</head>
-<body>
-</body>
-</html>
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href=".//source/style/common.css">
+            <link rel="icon" type="image/x-icon" href="/source/data/favicon.ico">
+            <title>Index</title>
+        </head>
+        <body>
+            <div id="header"></div>
+            <div id="content"><div class="text">This is a personal site where I share my projects, as well as tidbits from my ventures. I mainly focus on lower-level stuff related to GPU's, assembly, and language and compiler design. I'm currently working on an x64 assembler, which I eventually hope to optimize enough for it to be a viable competitor to <a href="https://www.nasm.us/" target="_blank" rel="noopener noreferrer">NASM</a>. My long-term goal is building a performant compiler backend/IR, which supports both sequential and massively parallel architectures (CPU/GPU/other).</div><div class="text"></div><div class="text segment"><h2 class="text">Blog</h1><div class="text">I'm trying my hand at writing a personal <a href="./blog.html" target="_blank" rel="noopener noreferrer">blog</a>, where I go over problems/interesting solutions I've come across.</div></div><div class="text"></div><div class="text segment"><h2 class="text">Education and Achievements</h1><ul>
+<li><div class="text"><a href="https://www.ssps.cz/" target="_blank" rel="noopener noreferrer">SSPŠ</a> (2019 - 2023) - High school - General-purpose IT.</div></li>
+<li><div class="text"><a href="https://fit.cvut.cz/cs" target="_blank" rel="noopener noreferrer">FIT ČVUT</a> (2023 - today) - Bachelor's - CS</div></li>
+<li><div class="text"><a href="https://fiks.fit.cvut.cz/" target="_blank" rel="noopener noreferrer">FIKS</a> - Programming contest organized by FIT ČVUT - 86th percentile.</div></li>
+<li><div class="text"><a href="https://www.cambridgeenglish.org/exams-and-tests/proficiency/" target="_blank" rel="noopener noreferrer">Cambridge English - C2</a> - Advanced qualification of competency in English.</div></li>
+</ul>
+<div class="text"></div><h2 class="text">Highlighted classes</h1><ul>
+<li><div class="text"><a href="https://bilakniha.cvut.cz/cs/predmet7492006.html#gsc.tab=0" target="_blank" rel="noopener noreferrer">CCN</a> - Compiler construction (Christoph Kirsch).</div></li>
+</ul>
+</div><div class="text"></div><h2 class="text">Open Source</h1><div class="text">I'm an open-source enthusiast and founder of the following open-source projects:</div><div class="text"></div><div class="text segment"><h2 class="text">Projects</h1><ul>
+<li><div class="text"><a href="https://github.com/Goubermouche/sigma" target="_blank" rel="noopener noreferrer">Sigma</a> - Simple data oriented programming language with no dependencies.</div></li>
+<li><div class="text"><a href="https://github.com/Goubermouche/VFD" target="_blank" rel="noopener noreferrer">VFD</a> - Real-time fluid simulator written in CUDA.</div></li>
+<li><div class="text">Baremetal - WIP x64 assembler with a JIT interface.</div></li>
+<li><div class="text"><a href="./utilities.html" target="_blank" rel="noopener noreferrer">Utilities</a> - Simple utility package with tools I tend to use often.</div></li>
+</ul>
+</div><div class="text"></div><h2 class="text">Other Links</h1><ul>
+<li><div class="text"><a href="mailto: simontupy64@gmail.com" target="_blank" rel="noopener noreferrer">Email</a> - Official way of reaching me</div></li>
+<li><div class="text"><a href="https://discord.gg/rFFQSqBZ" target="_blank" rel="noopener noreferrer">Discord</a> - If you want a quick response</div></li>
+<li><div class="text"><a href="https://twitter.com/goubermouche" target="_blank" rel="noopener noreferrer">Twitter</a> - My tweets, although I'm not very active</div></li>
+<li><div class="text"><a href="https://github.com/Goubermouche" target="_blank" rel="noopener noreferrer">GitHub</a> - My personal project repository</div></li>
+</ul>
+</div>
+            <div id="footer">
+                <div id="footer-content">
+                    <div id="footer-links">
+                        <a href="/index.html">Home</a> | 
+                        <a href="/blog.html">Blog</a> | 
+                        <a href="mailto: simontupy64@gmail.com">Email</a> |
+                        <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
+                        <a href="https://twitter.com/goubermouche">Twitter</a> | 
+                        <a href="https://github.com/Goubermouche">GitHub</a> 
+                    </div>
+                    <div id="footer-parsed-time">
+                        <span id="parsed_time"></span>
+                    </div>
+                    <div id="footer-copyright">
+                        &copy; 2024 goubermouche.com 
+                    </div>
+                </div>
+            </div>
+            <script>
+                const parsed_date_string = "Sat Jun 01 2024 12:26:59 GMT+0200 (Central European Summer Time)";
+                const parsed_date = new Date(parsed_date_string);
+                const current_date = new Date();
+
+                const difference_in_milliseconds = current_date - parsed_date;
+                const difference_in_days = difference_in_milliseconds / (1000 * 60 * 60 * 24);
+            
+                document.getElementById("parsed_time").innerHTML = `Updated ${difference_in_days.toFixed(2)} days ago`;
+            </script>
+        </body>
+        </html>
+    

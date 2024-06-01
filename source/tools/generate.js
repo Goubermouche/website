@@ -501,7 +501,7 @@ function generate_page(source_file, source_directory, destination_directory) {
             <div id="footer">
                 <div id="footer-content">
                     <div id="footer-links">
-                        <a href="/main.html">Home</a> | 
+                        <a href="/index.html">Home</a> | 
                         <a href="/blog.html">Blog</a> | 
                         <a href="mailto: simontupy64@gmail.com">Email</a> |
                         <a href="https://discord.gg/rFFQSqBZ">Discord</a> | 
