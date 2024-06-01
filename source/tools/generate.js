@@ -65,6 +65,10 @@ function get_filename(filePath) {
 }
 
 function format_document_heading(input) {
+    if(input == "index") {
+        return "Goubermouche";
+    }
+
     let words = input.split('-');
     words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
     let result = words.join(' ');
