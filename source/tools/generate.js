@@ -391,14 +391,84 @@ function generate_page(source_file, source_directory, destination_directory) {
                     </div>
                 </div>
                 <script>
-                    const parsed_date_string = "${(new Date()).toString()}";
+                    const parsed_date_string = "Sun Jun 02 2024 13:35:43 GMT+0200 (Central European Summer Time)";
                     const parsed_date = new Date(parsed_date_string);
                     const current_date = new Date();
-    
+
                     const difference_in_milliseconds = current_date - parsed_date;
                     const difference_in_days = difference_in_milliseconds / (1000 * 60 * 60 * 24);
-                
+
                     document.getElementById("parsed_time").innerHTML = \`Updated \${difference_in_days.toFixed(2)} days ago\`;
+                    for (let table of document.querySelectorAll("table")) {
+                        for (let row of table.children[0].children) {
+                            let min_height = Number.MAX_SAFE_INTEGER;
+
+                            for (let element of row.children) {
+                                const element_value = element.children[0];
+                                min_height = Math.min(element_value.offsetHeight, min_height);
+                            }
+
+                            console.log(min_height)
+
+                            let widths = [];
+                            let i = 0;
+
+                            for (let element of row.children) {
+                                element.children[0].style.height = \`\${min_height}px\`;
+
+                                widths.push({
+                                    element: element,
+                                    width: element.children[0].scrollWidth,
+                                    index: i
+                                });
+
+                                ++i;
+                            }
+
+
+                            let total = row.offsetWidth - ((row.children.length - 1) * 10)
+                            let percent = total / 100;
+                            let total_percent
+
+                            widths.sort((a, b) => a.width - b.width);
+
+                            console.log(widths)
+
+
+                            for (let i = 0; i < widths.length; ++i) {
+                                const element = widths[i];
+                                const width_percent = element.width / percent;
+
+                                if (total - element.width > 0) {
+                                    if (i + 1 >= widths.length) {
+                                        element.element.style.width = \`auto\`;
+                                    }
+                                    else if (element.index === 0) {
+                                        element.element.style.width = \`\${element.width}px\`;
+                                    }
+                                    else {
+                                        element.element.style.width = \`\${element.width}px\`;
+                                    }
+
+                                    total -= element.width;
+                                } else {
+                                    element.element.style.width = \`auto\`;
+                                }
+                            }
+
+                            for (let i = 0; i < row.children.length; ++i) {
+                                let element = row.children[i];
+
+                                if (i === 0) {
+
+                                }
+                                else {
+                                    element.style.paddingLeft = "10px"
+                                }
+                            }
+                        }
+                    }
+
                 </script>
             </body>
             </html>
@@ -636,7 +706,7 @@ class parser {
                 expect_next(token_type.backtick);
                 expect_next(token_type.backtick);
                 next();
-                return create_code_block(content);
+                return `<div>${create_code_block(content)}</div>`;
             }
             else {
                 next();
@@ -683,7 +753,7 @@ class parser {
                         break;
                     }
 
-                    cells.push(`<th>${content}</th>`);
+                    cells.push(`<td>${content}</td>`);
                 }
 
                 return cells.join("");
@@ -700,7 +770,7 @@ class parser {
                 rows.push(`<tr>${parse_table_row()}</tr>\n`);
             }
 
-            return `<table>\n${rows.join("")}</table>`;
+            return `<div class="table-container"><table class="table">\n${rows.join("")}</table></div>`;
         }
 
         function parse_bold_or_italic() {

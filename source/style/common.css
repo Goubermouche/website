@@ -153,7 +153,27 @@ img {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    max-width: 100%;
+    box-sizing:border-box;
+}
+
+/*table*/
+table {
+    margin-bottom: var(--element-margin);
+    margin-top: var(--element-margin);
+    color: var(--text-primary);
+
+    width: 100%;
+    height: min-content;
+    table-layout: fixed;
+    border-collapse: collapse;
+    padding: 0;
+}
+
+td {
+    vertical-align: top;
+    overflow: hidden;
+    text-align: center;
+    padding: 0;
 }
 
 /*codeblocks*/
@@ -167,15 +187,19 @@ code {
 }
 
 .code-block {
+    width: calc(100% - 6px);
+    height: min-content;
+
     background-color: var(--background-secondary);
     border: 3px solid var(--background-tertiary);
-    margin-bottom: var(--element-margin);
     grid-template-columns: 32px auto;
     display: grid;
+    margin-right: 10px;
 
     font-family: var(--code-text-font);
     color: var(--text-primary);
     font-size: 14px;
+    text-align: left;
 }
 
 .code-block-line-indices  {
@@ -188,17 +212,17 @@ code {
 
 .code-block-code {
     background-color: var(--background-secondary);
-    display: table;
     width: 100%;
+    height: min-content;
 }
 
 .code-block-line-parent {
     background-color: var(--background-secondary);
 }
 
-.code-block-line-parent:hover {
+/* .code-block-line-parent:hover {
     background-color: var(--background-secondary-bright);
-}
+} */
 
 .code-block-line {
     color: var(--text-primary);
@@ -210,7 +234,16 @@ code {
 .code-block-scroll-view {
     scrollbar-color: var(--text-secondary) #404040;
     scrollbar-width: thin;
-    overflow-x: auto;
+    overflow-x:scroll;
+}
+
+.code-block-line::-webkit-scrollbar {
+    display: none;
+}
+
+.code-block-scroll-view {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .control-keyword {
