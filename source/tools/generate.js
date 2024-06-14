@@ -391,6 +391,7 @@ function generate_page(source_file, source_directory, destination_directory) {
                     </div>
                 </div>
                 <script>
+                onload = () => {
                     const parsed_date_string = "Sun Jun 02 2024 13:35:43 GMT+0200 (Central European Summer Time)";
                     const parsed_date = new Date(parsed_date_string);
                     const current_date = new Date();
@@ -468,7 +469,7 @@ function generate_page(source_file, source_directory, destination_directory) {
                             }
                         }
                     }
-
+                }
                 </script>
             </body>
             </html>

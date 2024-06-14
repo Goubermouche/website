@@ -1,10 +1,8 @@
 Welcome to my blog, I'm going to be posting about my programming adventures from time to time. Mostly about lower-level stuff and programming languages. Glad to have you here!
 
 # Assembly
-- [baremetal](./baremetal.html) - a fast jit assembler, testing large amounts of data and microoptimizations.
-- [test](./blog/test.html) - Lorem ipsum dolor sit amet.
-- [test](./blog/test.html) - Lorem ipsum dolor sit amet.
-- [test](./blog/test.html) - Lorem ipsum dolor sit amet.
+- [x64 assembly](./blog/x64-assembly.html) - Useful info about, and some pitfalls of x64 assembly.
+
 
 # Programming Language Development
 - [sigma and LLVM hurdles](./blog/sigma-and-llvm-hurdles.html) - Working on my simple programming language and what it has taught me about performance.
