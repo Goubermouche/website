@@ -13,6 +13,9 @@ I'm trying my hand at writing a personal [blog](./blog.html).
 ### Highlighted classes
 - [CCN](https://bilakniha.cvut.cz/cs/predmet7492006.html#gsc.tab=0) - Compiler construction (prof. Christoph Kirsch).
 
+### Work experience
+- [Generali Česká pojišťovna](https://www.generaliceska.cz/) (2020) - Software testing
+
 ### Open Source
 I'm an open-source enthusiast and founder of the following open-source projects:
 - [Sigma](https://github.com/Goubermouche/sigma) - Simple data oriented programming language with no dependencies.
