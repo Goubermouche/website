@@ -24,7 +24,7 @@
         return result
     end if
 end function
-</div></pre>	<small class="caption"><b>Figure1: </b>Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero?</small>
+</div></pre>	<figure><small class="caption"><b>Figure1: </b>Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero?</small></figure>
 <p>Lorem ipsum dolor <i>sit amet consectetur adipisicing elit</i>. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum <b>corporis delectus quo similique quasi</b> commodi corrupti sunt inventore vero?</p>
 <figure>
 <svg width="387" height="57" viewBox="0 0 387 57" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,19 +58,37 @@ end function
 <h1>Math showcase <i>Yippee</i></h1>
 <h2>Math showcase <i>Yippee</i></h2>
 <h3>Math showcase <i>Yippee</i></h3>
-<p>Lorem ipsum<sup>superscript</sup> Dolor sit amet<sub>subscript</sub> <span style="animation: color-change 1s infinite;">Embedded HTML!</span> <i>italic</i> <b>bold</b></p>
+<p>Lorem ipsum<sup>superscript</sup> Dolor sit amet<sub>subscript</sub> <span id="animated">Embedded HTML!</span> <i>italic</i> <b>bold</b></p>
 <p>
-<style>
-    @keyframes color-change {
-        0% { color: red; }
-        50% { color: blue; }
-        100% { color: red; }
-    }
-</style>
+ <h1 id="">Hello, world!</h1>
+    <style>
+       @keyframes wave{
+        0%, 100% {
+            transform: translateY(0px);
+            color: red;
+        }
+        50% {
+            transform: translateY(5px);
+            color: blue;
+        }
+    </style>
+
+
+    <script>
+        let delay = 200;
+        let h1 = document.getElementById("animated");
+
+        let content = h1.innerHTML;
+        h1.innerHTML = "";
+
+        for (let i = 0; i < content.length; i++) {
+            h1.innerHTML += `<span style="display: inline-block; animation: wave 0.7s ease-in-out infinite; animation-delay: -${i / 10}s">${content[i]}</span>`;
+        }
+    </script>
 </p>
 <p>Lorem ipsum dolor <i>sit amet consectetur adipisicing elit</i>. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum <b>corporis delectus quo similique quasi</b> commodi corrupti sunt inventore vero?</p>
 <pre><div class="math">Height(x,y) = ⌈log2​(max(x, y) + 1)⌉ − ⌊log2​(min(x, y) + 1)⌋ ≤ 1
-</div></pre>	<small class="caption"><b>Figure3: </b>Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero?</small>
+</div></pre>	<figure><small class="caption"><b>Figure3: </b>Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero?</small></figure>
 <ul>
 	<li> The quick brown fox jumps over the lazy dog.</li>
 	<li> To be, or not to be, that is the question.</li>

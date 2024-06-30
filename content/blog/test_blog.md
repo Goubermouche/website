@@ -31,16 +31,34 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat s
 ## Math showcase *Yippee*
 ### Math showcase *Yippee*
 
-Lorem ipsum^superscript^ Dolor sit amet~subscript~ &<span style="animation: color-change 1s infinite;">Embedded HTML!</span>& *italic* **bold**
+Lorem ipsum^superscript^ Dolor sit amet~subscript~ &<span id="animated">Embedded HTML!</span>& *italic* **bold**
 
 &
-<style>
-    @keyframes color-change {
-        0% { color: red; }
-        50% { color: blue; }
-        100% { color: red; }
-    }
-</style>
+ <h1 id="">Hello, world!</h1>
+    <style>
+       @keyframes wave{
+        0%, 100% {
+            transform: translateY(0px);
+            color: red;
+        }
+        50% {
+            transform: translateY(5px);
+            color: blue;
+        }
+    </style>
+
+
+    <script>
+        let delay = 200;
+        let h1 = document.getElementById("animated");
+
+        let content = h1.innerHTML;
+        h1.innerHTML = "";
+
+        for (let i = 0; i < content.length; i++) {
+            h1.innerHTML += `<span style="display: inline-block; animation: wave 0.7s ease-in-out infinite; animation-delay: -${i / 10}s">${content[i]}</span>`;
+        }
+    </script>
 &
 
 Lorem ipsum dolor *sit amet consectetur adipisicing elit*. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum corporis delectus quo similique quasi commodi corrupti sunt inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat soluta magni enim expedita autem quia veniam magnam cum **corporis delectus quo similique quasi** commodi corrupti sunt inventore vero?
@@ -56,4 +74,3 @@ $$$
 - A stitch in time saves nine.
 - Actions speak louder than words.
 - Give a man a fish, and you feed him for a day; teach a man to fish, and you feed him for a lifetime.
-

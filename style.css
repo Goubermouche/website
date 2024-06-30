@@ -1,11 +1,14 @@
 body {
-	background: white;
-	color: black;
-	margin: auto;
-	padding: 15px;
-	font-family: Cambria;
-	width: min(630px, calc(100% - 30px));
+    background: white;
+    color: black;
+    margin: auto;
+    padding: 15px;
+    font-family: Cambria;
+    max-width: 630px;
+    width: calc(100% - 30px);
 }
+
+::-webkit-scrollbar { display: none;}
 
 p {
 	margin: 0.6rem 0 1.0rem 0;
