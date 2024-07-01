@@ -30,6 +30,9 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum, earum repellat s
 # Math showcase *Yippee*
 ## Math showcase *Yippee*
 ### Math showcase *Yippee*
+#### Math showcase *Yippee*
+##### Math showcase *Yippee*
+###### Math showcase *Yippee*
 
 Lorem ipsum^superscript^ Dolor sit amet~subscript~ &<span id="animated">Embedded HTML!</span>& *italic* **bold**
 
