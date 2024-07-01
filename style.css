@@ -3,7 +3,7 @@ body {
     color: black;
     margin: auto;
     padding: 15px;
-    font-family: Cambria;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     max-width: 630px;
     width: calc(100% - 30px);
 }
