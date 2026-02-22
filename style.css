@@ -1,0 +1,15 @@
+body {
+	max-width: 500px;
+	margin: 0 auto;
+	padding-bottom: 40px;
+}
+
+* {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+a {
+	color: blue;
+	font-weight: bold;
+}
