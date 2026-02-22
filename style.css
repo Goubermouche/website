@@ -1,9 +1,10 @@
 body {
 	background: #181A1B;
 	color: white;
-	max-width: 500px;
+	max-width: 550px;
 	margin: 0 auto;
 	padding: 20px;
+	font-family: "Segoe UI", sans-serif;
 }
 
 * {
@@ -15,3 +16,37 @@ a {
 	color: #337DFF;
 	font-weight: bold;
 }
+
+.profile-card {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 10px;
+	align-items: stretch;
+}
+
+.bio-text {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.pfp {
+	height: 200px;
+	width: auto;
+	aspect-ratio: 1 / 1;
+	object-fit: contain;
+	align-self: center;
+}
+
+@media (max-width: 590px) {
+	.profile-card {
+		grid-template-columns: 1fr;
+	}
+
+	.pfp {
+		height: auto;
+		width: 100%;
+		order: -1;
+	}
+}
+
