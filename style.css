@@ -1,4 +1,6 @@
 body {
+	background: #181A1B;
+	color: white;
 	max-width: 500px;
 	margin: 0 auto;
 	padding: 20px;
@@ -10,6 +12,6 @@ body {
 }
 
 a {
-	color: blue;
+	color: #337DFF;
 	font-weight: bold;
 }
