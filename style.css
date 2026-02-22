@@ -1,5 +1,5 @@
 body {
-	background: #181A1B;
+	background: #000000;
 	color: white;
 	max-width: 550px;
 	margin: 0 auto;
@@ -50,3 +50,98 @@ a {
 	}
 }
 
+/*code*/
+pre code.hcj {
+	display: block;
+	overflow-x: auto;
+	padding: 6px;
+}
+
+.hcj {
+	font-size: 13px;
+	font-family: 'JetBrains Mono', monospace;
+	background: #0b0c0d;
+}
+
+.hcj-comment,
+.hcj-quote {
+	color: #000000;
+	background: #00ff00;
+	font-weight: bold;
+}
+
+.hcj-doctag,
+.hcj-formula,
+.hcj-keyword {
+	color: #ff00ff;
+}
+
+.hcj-deletion,
+.hcj-section,
+.hcj-selector-tag,
+.hcj-subst {
+	color: #ff0000;
+}
+
+.hcj-literal {
+	color: #ff0000;
+}
+
+.hcj-addition,
+.hcj-attribute,
+.hcj-meta .hcj-string,
+.hcj-regexp {
+	color: #ffabf7;
+}
+
+.hcj-attr,
+.hcj-selector-attr,
+.hcj-selector-class,
+.hcj-selector-pseudo,
+.hcj-template-variable,
+.hcj-type,.hcj-variable {
+	color: #00b7b7;
+}
+
+.hcj-bullet,
+.hcj-link,
+.hcj-selector-id,
+.hcj-symbol,
+.hcj-title {
+	color: #ffffff;
+}
+
+.hcj-meta {
+	color: #9C9DA2;
+	font-weight: bold;
+}
+
+.hcj-name {
+	color: #ff0000;
+}
+
+.hcj-string {
+	color: #ffabf7;
+}
+
+.hcj-number {
+	color: #98fff5;
+}
+
+.hcj-built_in,
+.hcj-class .hcj-title,
+.hcj-title.class_ {
+	color: #00ffff;
+}
+
+.hcj-emphasis {
+	font-style: italic;
+}
+
+.hcj-strong {
+	font-weight: 700;
+}
+
+.hcj-link {
+	text-decoration: underline;
+}
