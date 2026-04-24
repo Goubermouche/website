@@ -145,3 +145,21 @@ pre code.hcj {
 .hcj-link {
 	text-decoration: underline;
 }
+
+/*favourites*/
+.mood-board {
+	column-width: 250px;
+	column-gap: 4px;
+}
+
+.mood-board a {
+	display: block;
+	margin-bottom: 4px;
+	break-inside: avoid;
+}
+
+.mood-board img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
