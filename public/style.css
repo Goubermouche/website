@@ -1,10 +1,9 @@
 body {
-	background: #000000;
+	background: black;
 	color: white;
 	max-width: 550px;
 	margin: 0 auto;
 	padding: 20px;
-	font-family: "Segoe UI", sans-serif;
 }
 
 * {
@@ -13,7 +12,16 @@ body {
 }
 
 a {
-	color: #337DFF;
+	color: #0a74ff;
+	font-weight: bold;
+}
+
+ul {
+	margin-left: -23px;
+}
+
+.disclaimer {
+	color: #ff0a0a;
 	font-weight: bold;
 }
 
