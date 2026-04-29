@@ -501,7 +501,6 @@
                 updateUIFromHSV('alpha');
             });
 
-            // Improved regex to better capture all numbers including negatives and floats
             const extractNumbers = (str) => str.match(/-?\d*\.?\d+/g)?.map(Number) || [];
 
             const handleHexInput = (val, source) => {
