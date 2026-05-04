@@ -174,11 +174,12 @@ pre code.hcj {
 }
 
 .pfp {
-	height: 138px;
+	height: 144px;
 	width: auto;
 	aspect-ratio: 1 / 1;
 	object-fit: contain;
 	align-self: center;
+	margin: 0;
 }
 
 @media (max-width: 680px) {
