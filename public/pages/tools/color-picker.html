@@ -2,585 +2,588 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../../favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../../style.css">
-    <title>Color picker</title>
-    <style>
-        .color-picker-container * {
-            margin-top: unset;
-            margin-bottom: unset;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="../../style.css">
+	<title>Color picker</title>
+	<style>
+		.color-picker-container * {
+			margin-top: unset;
+			margin-bottom: unset;
+		}
 
-        .picker-area {
-            position: relative;
-            width: 100%;
-            height: 96px;
-            overflow: hidden;
-            cursor: crosshair;
-            touch-action: none;
-            background-color: #ff0000;
-        }
+		.picker-area {
+			position: relative;
+			width: 100%;
+			height: 96px;
+			overflow: hidden;
+			cursor: crosshair;
+			touch-action: none;
+			background-color: #ff0000;
+		}
 
-        .picker-area::before,
-        .picker-area::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
+		.picker-area::before,
+		.picker-area::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+		}
 
-        .picker-area::before {
-            background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
-        }
+		.picker-area::before {
+			background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+		}
 
-        .picker-area::after {
-            background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
-        }
+		.picker-area::after {
+			background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
+		}
 
-        .picker-cursor {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 2;
-        }
+		.picker-cursor {
+			position: absolute;
+			width: 10px;
+			height: 10px;
+			border: 2px solid #fff;
+			border-radius: 50%;
+			transform: translate(-50%, -50%);
+			pointer-events: none;
+			z-index: 2;
+		}
 
-        .sliders {
-            display: flex;
-            flex-direction: column;
-        }
+		.sliders {
+			display: flex;
+			flex-direction: column;
+		}
 
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+		.slider-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
 
-        .slider-label {
-            flex: 0 0 50px;
-        }
+		.slider-label {
+			flex: 0 0 50px;
+		}
 
-        input[type=range] {
-            flex-grow: 1;
-            -webkit-appearance: none;
-            width: 100%;
-            height: 12px;
-            border-radius: 6px;
-            outline: none;
-            cursor: pointer;
-        }
+		input[type=range] {
+			flex-grow: 1;
+			-webkit-appearance: none;
+			width: 100%;
+			height: 12px;
+			border-radius: 6px;
+			outline: none;
+			cursor: pointer;
+		}
 
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #ccc;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-        }
+		input[type=range]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: #fff;
+			border: 2px solid #ccc;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+			cursor: pointer;
+		}
 
-        input[type=range]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #ccc;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-            box-sizing: border-box;
-        }
+		input[type=range]::-moz-range-thumb {
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: #fff;
+			border: 2px solid #ccc;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+			cursor: pointer;
+			box-sizing: border-box;
+		}
 
-        #hue-slider {
-            margin: 0px;
-            background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
-        }
+		#hue-slider {
+			margin: 0px;
+			background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+		}
 
-        #alpha-slider {
-            background: linear-gradient(to right, transparent, #ff0000);
-        }
+		#alpha-slider {
+			background: linear-gradient(to right, transparent, #ff0000);
+		}
 
-        .checker-bg {
-            background: repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px;
-            background-color: #fff;
-        }
+		.checker-bg {
+			background: repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px;
+			background-color: #fff;
+		}
 
-        .alpha-wrapper {
-            flex-grow: 1;
-            position: relative;
-            height: 12px;
-            border-radius: 6px;
-        }
+		.alpha-wrapper {
+			flex-grow: 1;
+			position: relative;
+			height: 12px;
+			border-radius: 6px;
+		}
 
-        .alpha-wrapper input {
-            position: absolute;
-            inset: 0;
-            margin: 0;
-        }
+		.alpha-wrapper input {
+			position: absolute;
+			inset: 0;
+			margin: 0;
+		}
 
-        .palette-container {
-            display: flex;
-            gap: 4px;
-            margin-top: 4px;
-        }
+		.palette-container {
+			display: flex;
+			gap: 4px;
+			margin-top: 4px;
+		}
 
-        .suggestions {
-            display: flex;
-            gap: 4px;
-            flex-grow: 1;
-        }
+		.suggestions {
+			display: flex;
+			gap: 4px;
+			flex-grow: 1;
+		}
 
-        .suggestion-wrapper {
-            flex: 1;
-            overflow: hidden;
-            aspect-ratio: 1 / 1;
-        }
+		.suggestion-wrapper {
+			flex: 1;
+			overflow: hidden;
+			aspect-ratio: 1 / 1;
+		}
 
-        .suggestion-wrapper:hover {
-            z-index: 10;
-        }
+		.suggestion-wrapper:hover {
+			z-index: 10;
+		}
 
-        .suggestion-box {
-            height: 100%;
-            cursor: pointer;
-        }
+		.suggestion-box {
+			height: 100%;
+			cursor: pointer;
+		}
 
-        .inputs-container {
-            display: flex;
-            flex-direction: column;
-        }
+		.inputs-container {
+			display: flex;
+			flex-direction: column;
+		}
 
-        .input-row {
-            display: flex;
-            align-items: center;
-        }
+		.input-row {
+			display: flex;
+			align-items: center;
+		}
 
-        .input-row label {
-            width: 60px;
-        }
+		.input-row label {
+			width: 60px;
+		}
 
-        .input-group {
-            display: flex;
-            flex-grow: 1;
-            gap: 4px;
-        }
+		.input-group {
+			display: flex;
+			flex-grow: 1;
+			gap: 4px;
+		}
 
-        .input-wrapper {
-            position: relative;
-            flex: 1;
-            display: flex;
-        }
+		.input-wrapper {
+			position: relative;
+			flex: 1;
+			display: flex;
+		}
 
-        input[type=text] {
-            font-family: monospace;
-            width: 100%;
-        }
+		input[type=text] {
+			font-family: monospace;
+			width: 100%;
+		}
 
-        input[type=text]:focus {
-            outline: none;
-        }
+		input[type=text]:focus {
+			outline: none;
+		}
 
-        @media (max-width: 690px) {
-            .input-group {
-                flex-direction: column;
-            }
-        }
-    </style>
+		@media (max-width: 690px) {
+			.input-group {
+				flex-direction: column;
+			}
+		}
+	</style>
 </head>
 
 <body>
-    <header>
-        <a href="../../index.html">home</a>
-        <a href="../blog.html">blog</a>
-        <a href="../showcase.html">show</a>
-        <a href="../homelab.html">lab</a>
-        <a href="../favourites.html">fav</a>
-        <a href="../resources.html">res</a>
-        <a href="../ideas.html">ideas</a>
-        <a href="../tools.html">tools</a>
-    </header>
-    <h1>Color picker</h1>
-    <div class="color-picker-container">
-        <div class="picker-area" id="picker-area">
-            <div class="picker-cursor" id="picker-cursor"></div>
-        </div>
-        <div class="palette-container">
-            <div class="suggestions" id="suggestions"></div>
-        </div>
-        <div class="palette-container">
-            <div class="suggestions" id="history"></div>
-        </div>
-        <div class="sliders">
-            <div class="slider-row">
-                <div class="slider-label">hue</div>
-                <input type="range" id="hue-slider" min="0" max="360" step="1" value="0">
-            </div>
-            <div class="slider-row">
-                <div class="slider-label">alpha</div>
-                <div class="alpha-wrapper checker-bg">
-                    <input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="1">
-                </div>
-            </div>
-        </div>
+	<header>
+		<a href="../../index.html">home</a>
+		<a href="../blog.html">blog</a>
+		<a href="../showcase.html">show</a>
+		<a href="../homelab.html">lab</a>
+		<a href="../favourites.html">fav</a>
+		<a href="../resources.html">res</a>
+		<a href="../ideas.html">ideas</a>
+		<a href="../tools.html">tools</a>
+	</header>
+	<h1>Color picker</h1>
+	<div class="color-picker-container">
+		<div class="picker-area" id="picker-area">
+			<div class="picker-cursor" id="picker-cursor"></div>
+		</div>
+		<div class="palette-container">
+			<div class="suggestions" id="suggestions"></div>
+		</div>
+		<div class="palette-container">
+			<div class="suggestions" id="history"></div>
+		</div>
+		<div class="sliders">
+			<div class="slider-row">
+				<div class="slider-label">hue</div>
+				<input type="range" id="hue-slider" min="0" max="360" step="1" value="0">
+			</div>
+			<div class="slider-row">
+				<div class="slider-label">alpha</div>
+				<div class="alpha-wrapper checker-bg">
+					<input type="range" id="alpha-slider" min="0" max="1" step="0.01" value="1">
+				</div>
+			</div>
+		</div>
 
-        <div class="inputs-container">
-            <div class="input-row">
-                <label>hex</label>
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <input type="text" id="hex-hash" placeholder="#ffffff">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="text" id="hex-0x" placeholder="0xffffff">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                </div>
-            </div>
-            <div class="input-row">
-                <label>rgb</label>
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <input type="text" id="rgb-css" placeholder="rgb(255, 255, 255)">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="text" id="rgb-raw" placeholder="255, 255, 255">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                </div>
-            </div>
-            <div class="input-row">
-                <label>rgba</label>
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <input type="text" id="rgba-css" placeholder="rgba(255, 255, 255, 1)">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="text" id="rgba-raw" placeholder="255, 255, 255, 1">
-                        <button class="copy-btn" title="Copy">copy</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const MAX_HISTORY = 13;
+		<div class="inputs-container">
+			<div class="input-row">
+				<label>hex</label>
+				<div class="input-group">
+					<div class="input-wrapper">
+						<input type="text" id="hex-hash" placeholder="#ffffff">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+					<div class="input-wrapper">
+						<input type="text" id="hex-0x" placeholder="0xffffff">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+				</div>
+			</div>
+			<div class="input-row">
+				<label>rgb</label>
+				<div class="input-group">
+					<div class="input-wrapper">
+						<input type="text" id="rgb-css" placeholder="rgb(255, 255, 255)">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+					<div class="input-wrapper">
+						<input type="text" id="rgb-raw" placeholder="255, 255, 255">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+				</div>
+			</div>
+			<div class="input-row">
+				<label>rgba</label>
+				<div class="input-group">
+					<div class="input-wrapper">
+						<input type="text" id="rgba-css" placeholder="rgba(255, 255, 255, 1)">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+					<div class="input-wrapper">
+						<input type="text" id="rgba-raw" placeholder="255, 255, 255, 1">
+						<button class="copy-btn" title="Copy">copy</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const MAX_HISTORY = 13;
 
-            let h = 0;
-            let s = 100;
-            let v = 100;
-            let a = 1;
+			let h = 0;
+			let s = 100;
+			let v = 100;
+			let a = 1;
 
-            const pickerArea = document.getElementById('picker-area');
-            const pickerCursor = document.getElementById('picker-cursor');
-            const hueSlider = document.getElementById('hue-slider');
-            const alphaSlider = document.getElementById('alpha-slider');
-            const suggestionsContainer = document.getElementById('suggestions');
-            const historyContainer = document.getElementById('history');
+			const pickerArea = document.getElementById('picker-area');
+			const pickerCursor = document.getElementById('picker-cursor');
+			const hueSlider = document.getElementById('hue-slider');
+			const alphaSlider = document.getElementById('alpha-slider');
+			const suggestionsContainer = document.getElementById('suggestions');
+			const historyContainer = document.getElementById('history');
 
-            const hexHash = document.getElementById('hex-hash');
-            const hex0x = document.getElementById('hex-0x');
-            const rgbCss = document.getElementById('rgb-css');
-            const rgbRaw = document.getElementById('rgb-raw');
-            const rgbaCss = document.getElementById('rgba-css');
-            const rgbaRaw = document.getElementById('rgba-raw');
+			const hexHash = document.getElementById('hex-hash');
+			const hex0x = document.getElementById('hex-0x');
+			const rgbCss = document.getElementById('rgb-css');
+			const rgbRaw = document.getElementById('rgb-raw');
+			const rgbaCss = document.getElementById('rgba-css');
+			const rgbaRaw = document.getElementById('rgba-raw');
 
-            const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+			const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
 
-            function hsvToRgb(h, s, v) {
-                s /= 100; v /= 100;
-                let c = v * s;
-                let x = c * (1 - Math.abs((h / 60) % 2 - 1));
-                let m = v - c;
-                let r = 0, g = 0, b = 0;
-                if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
-                else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
-                else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
-                else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
-                else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
-                else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
-                return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
-            }
+			function hsvToRgb(h, s, v) {
+				s /= 100; v /= 100;
+				let c = v * s;
+				let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+				let m = v - c;
+				let r = 0, g = 0, b = 0;
+				if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+				else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+				else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+				else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+				else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+				else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
+				return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+			}
 
-            function rgbToHsv(r, g, b) {
-                r /= 255; g /= 255; b /= 255;
-                let max = Math.max(r, g, b), min = Math.min(r, g, b);
-                let d = max - min;
-                let h = 0, s = (max === 0 ? 0 : d / max), v = max;
-                if (max !== min) {
-                    switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
-                    }
-                    h /= 6;
-                }
-                return [h * 360, s * 100, v * 100]; // Fixed from h * 60
-            }
+			function rgbToHsv(r, g, b) {
+				r /= 255; g /= 255; b /= 255;
+				let max = Math.max(r, g, b), min = Math.min(r, g, b);
+				let d = max - min;
+				let h = 0, s = (max === 0 ? 0 : d / max), v = max;
+				if (max !== min) {
+					switch (max) {
+						case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+						case g: h = (b - r) / d + 2; break;
+						case b: h = (r - g) / d + 4; break;
+					}
+					h /= 6;
+				}
+				return [h * 360, s * 100, v * 100]; // Fixed from h * 60
+			}
 
-            function rgbToHex(r, g, b, alpha) {
-                let hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-                if (alpha !== 1) {
-                    let alphaHex = Math.round(alpha * 255).toString(16).padStart(2, '0');
-                    hex += alphaHex;
-                }
-                return hex;
-            }
+			function rgbToHex(r, g, b, alpha) {
+				let hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+				if (alpha !== 1) {
+					let alphaHex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+					hex += alphaHex;
+				}
+				return hex;
+			}
 
-            function getHistory() {
-                try {
-                    return JSON.parse(localStorage.getItem('colorHistory')) || [];
-                } catch {
-                    return [];
-                }
-            }
+			function getHistory() {
+				try {
+					return JSON.parse(localStorage.getItem('colorHistory')) || [];
+				} catch {
+					return [];
+				}
+			}
 
-            function renderHistory() {
-                historyContainer.innerHTML = '';
-                const history = getHistory();
+			function renderHistory() {
+				historyContainer.innerHTML = '';
+				const history = getHistory();
 
-                for (let i = 0; i < MAX_HISTORY; i++) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'suggestion-wrapper checker-bg';
+				for (let i = 0; i < MAX_HISTORY; i++) {
+					const wrapper = document.createElement('div');
+					wrapper.className = 'suggestion-wrapper checker-bg';
 
-                    const box = document.createElement('div');
-                    box.className = 'suggestion-box';
+					const box = document.createElement('div');
+					box.className = 'suggestion-box';
 
-                    if (history[i]) {
-                        box.style.backgroundColor = history[i].rgba;
-                        box.addEventListener('click', () => {
-                            h = history[i].h;
-                            s = history[i].s;
-                            v = history[i].v;
-                            a = history[i].a;
-                            updateUIFromHSV('history');
-                        });
-                    } else {
-                        box.style.backgroundColor = 'transparent';
-                        box.style.cursor = 'default';
-                    }
+					if (history[i]) {
+						box.style.backgroundColor = history[i].rgba;
+						box.addEventListener('click', () => {
+							h = history[i].h;
+							s = history[i].s;
+							v = history[i].v;
+							a = history[i].a;
+							updateUIFromHSV('history');
+						});
+					} else {
+						box.style.backgroundColor = 'transparent';
+						box.style.cursor = 'default';
+					}
 
-                    wrapper.appendChild(box);
-                    historyContainer.appendChild(wrapper);
-                }
-            }
+					wrapper.appendChild(box);
+					historyContainer.appendChild(wrapper);
+				}
+			}
 
-            function saveToHistory() {
-                const history = getHistory();
-                const [r, g, b] = hsvToRgb(h, s, v);
-                const currentRgba = `rgba(${r}, ${g}, ${b}, ${a})`;
+			function saveToHistory() {
+				const history = getHistory();
+				const [r, g, b] = hsvToRgb(h, s, v);
+				const currentRgba = `rgba(${r}, ${g}, ${b}, ${a})`;
 
-                if (history.length > 0 && history[0].rgba === currentRgba) return;
+				if (history.length > 0 && history[0].rgba === currentRgba) return;
 
-                history.unshift({ h, s, v, a, rgba: currentRgba });
-                if (history.length > MAX_HISTORY) {
-                    history.pop();
-                }
-                localStorage.setItem('colorHistory', JSON.stringify(history));
-                renderHistory();
-            }
+				history.unshift({ h, s, v, a, rgba: currentRgba });
+				if (history.length > MAX_HISTORY) {
+					history.pop();
+				}
+				localStorage.setItem('colorHistory', JSON.stringify(history));
+				renderHistory();
+			}
 
-            let isDragging = false;
+			let isDragging = false;
 
-            function updateUIFromHSV(source = null) {
-                const [r, g, b] = hsvToRgb(h, s, v);
-                const hex = rgbToHex(r, g, b, a);
-                const rgbaString = `rgba(${r}, ${g}, ${b}, ${a})`;
-                const [baseR, baseG, baseB] = hsvToRgb(h, 100, 100);
-                
-                pickerArea.style.backgroundColor = `rgb(${baseR}, ${baseG}, ${baseB})`;
-                pickerCursor.style.left = `${s}%`;
-                pickerCursor.style.top = `${100 - v}%`;
-                if (source !== 'hue') hueSlider.value = h;
-                if (source !== 'alpha') alphaSlider.value = a;
-                alphaSlider.style.background = `linear-gradient(to right, rgba(${r},${g},${b},0), rgba(${r},${g},${b},1))`;
-                
-                if (source !== 'hexHash') hexHash.value = `#${hex}`;
-                if (source !== 'hex0x') hex0x.value = `0x${hex}`;
-                if (source !== 'rgbCss') rgbCss.value = `rgb(${r}, ${g}, ${b})`;
-                if (source !== 'rgbRaw') rgbRaw.value = `${r}, ${g}, ${b}`;
-                if (source !== 'rgbaCss') rgbaCss.value = `rgba(${r}, ${g}, ${b}, ${a})`;
-                if (source !== 'rgbaRaw') rgbaRaw.value = `${r}, ${g}, ${b}, ${a}`;
-                
-                generateShades();
-            }
+			function updateUIFromHSV(source = null) {
+				const [r, g, b] = hsvToRgb(h, s, v);
+				const hex = rgbToHex(r, g, b, a);
+				const rgbaString = `rgba(${r}, ${g}, ${b}, ${a})`;
+				const [baseR, baseG, baseB] = hsvToRgb(h, 100, 100);
+				
+				pickerArea.style.backgroundColor = `rgb(${baseR}, ${baseG}, ${baseB})`;
+				pickerCursor.style.left = `${s}%`;
+				pickerCursor.style.top = `${100 - v}%`;
+				if (source !== 'hue') hueSlider.value = h;
+				if (source !== 'alpha') alphaSlider.value = a;
+				alphaSlider.style.background = `linear-gradient(to right, rgba(${r},${g},${b},0), rgba(${r},${g},${b},1))`;
+				
+				if (source !== 'hexHash') hexHash.value = `#${hex}`;
+				if (source !== 'hex0x') hex0x.value = `0x${hex}`;
+				if (source !== 'rgbCss') rgbCss.value = `rgb(${r}, ${g}, ${b})`;
+				if (source !== 'rgbRaw') rgbRaw.value = `${r}, ${g}, ${b}`;
+				if (source !== 'rgbaCss') rgbaCss.value = `rgba(${r}, ${g}, ${b}, ${a})`;
+				if (source !== 'rgbaRaw') rgbaRaw.value = `${r}, ${g}, ${b}, ${a}`;
+				
+				generateShades();
+			}
 
-            function setRGB(r, g, b, newA = a, source) {
-                const [newH, newS, newV] = rgbToHsv(r, g, b);
-                if (newS !== 0) h = newH; // Prevent hue jumping to 0 on greyscale
-                s = newS; 
-                v = newV; 
-                a = newA;
-                updateUIFromHSV(source);
-            }
+			function setRGB(r, g, b, newA = a, source) {
+				const [newH, newS, newV] = rgbToHsv(r, g, b);
+				if (newS !== 0) h = newH; // Prevent hue jumping to 0 on greyscale
+				s = newS; 
+				v = newV; 
+				a = newA;
+				updateUIFromHSV(source);
+			}
 
-            function generateShades() {
-                suggestionsContainer.innerHTML = '';
-                const steps = 6;
+			function generateShades() {
+				suggestionsContainer.innerHTML = '';
+				const steps = 6;
 
-                for (let i = -steps; i <= steps; i++) {
-                    let tempS = s;
-                    let tempV = v;
+				for (let i = -steps; i <= steps; i++) {
+					let tempS = s;
+					let tempV = v;
 
-                    if (i < 0) {
-                        let factor = Math.abs(i) / steps;
-                        tempS = s * (1 - factor);
-                        tempV = v + (100 - v) * factor;
-                    } else if (i > 0) {
-                        let factor = i / steps;
-                        tempV = v * (1 - factor);
-                    }
+					if (i < 0) {
+						let factor = Math.abs(i) / steps;
+						tempS = s * (1 - factor);
+						tempV = v + (100 - v) * factor;
+					} else if (i > 0) {
+						let factor = i / steps;
+						tempV = v * (1 - factor);
+					}
 
-                    const [sr, sg, sb] = hsvToRgb(h, tempS, tempV);
+					const [sr, sg, sb] = hsvToRgb(h, tempS, tempV);
 
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'suggestion-wrapper checker-bg';
+					const wrapper = document.createElement('div');
+					wrapper.className = 'suggestion-wrapper checker-bg';
 
-                    const box = document.createElement('div');
-                    box.className = 'suggestion-box';
-                    box.style.backgroundColor = `rgba(${sr}, ${sg}, ${sb}, ${a})`;
+					const box = document.createElement('div');
+					box.className = 'suggestion-box';
+					box.style.backgroundColor = `rgba(${sr}, ${sg}, ${sb}, ${a})`;
 
-                    box.addEventListener('click', () => {
-                        s = tempS;
-                        v = tempV;
-                        updateUIFromHSV();
-                    });
+					box.addEventListener('click', () => {
+						s = tempS;
+						v = tempV;
+						updateUIFromHSV();
+					});
 
-                    wrapper.appendChild(box);
-                    suggestionsContainer.appendChild(wrapper);
-                }
-            }
+					wrapper.appendChild(box);
+					suggestionsContainer.appendChild(wrapper);
+				}
+			}
 
-            function updateCursorPosition(e) {
-                const rect = pickerArea.getBoundingClientRect();
-                let x = e.clientX - rect.left;
-                let y = e.clientY - rect.top;
-                x = Math.max(0, Math.min(x, rect.width));
-                y = Math.max(0, Math.min(y, rect.height));
-                s = (x / rect.width) * 100;
-                v = 100 - ((y / rect.height) * 100);
-                updateUIFromHSV('area');
-            }
+			function updateCursorPosition(e) {
+				const rect = pickerArea.getBoundingClientRect();
+				let x = e.clientX - rect.left;
+				let y = e.clientY - rect.top;
+				x = Math.max(0, Math.min(x, rect.width));
+				y = Math.max(0, Math.min(y, rect.height));
+				s = (x / rect.width) * 100;
+				v = 100 - ((y / rect.height) * 100);
+				updateUIFromHSV('area');
+			}
 
-            pickerArea.addEventListener('pointerdown', (e) => {
-                isDragging = true;
-                document.body.style.userSelect = 'none';
-                document.body.style.webkitUserSelect = 'none';
-                updateCursorPosition(e);
-            });
+			pickerArea.addEventListener('pointerdown', (e) => {
+				isDragging = true;
+				document.body.style.userSelect = 'none';
+				document.body.style.webkitUserSelect = 'none';
+				updateCursorPosition(e);
+			});
 
-            window.addEventListener('pointermove', (e) => {
-                if (!isDragging) return;
-                updateCursorPosition(e);
-            });
+			window.addEventListener('pointermove', (e) => {
+				if (!isDragging) return;
+				updateCursorPosition(e);
+			});
 
-            window.addEventListener('pointerup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    document.body.style.userSelect = '';
-                    document.body.style.webkitUserSelect = '';
-                }
-            });
+			window.addEventListener('pointerup', () => {
+				if (isDragging) {
+					isDragging = false;
+					document.body.style.userSelect = '';
+					document.body.style.webkitUserSelect = '';
+				}
+			});
 
-            hueSlider.addEventListener('input', (e) => {
-                h = parseFloat(e.target.value);
-                updateUIFromHSV('hue');
-            });
+			hueSlider.addEventListener('input', (e) => {
+				h = parseFloat(e.target.value);
+				updateUIFromHSV('hue');
+			});
 
-            alphaSlider.addEventListener('input', (e) => {
-                a = parseFloat(e.target.value);
-                updateUIFromHSV('alpha');
-            });
+			alphaSlider.addEventListener('input', (e) => {
+				a = parseFloat(e.target.value);
+				updateUIFromHSV('alpha');
+			});
 
-            const extractNumbers = (str) => str.match(/-?\d*\.?\d+/g)?.map(Number) || [];
+			const extractNumbers = (str) => str.match(/-?\d*\.?\d+/g)?.map(Number) || [];
 
-            const handleHexInput = (val, source) => {
-                let cleanVal = val.replace(/[^0-9a-fA-F]/g, '');
+			const handleHexInput = (val, source) => {
+				let cleanVal = val.replace(/[^0-9a-fA-F]/g, '');
 
-                if (cleanVal.length === 3 || cleanVal.length === 4) {
-                    cleanVal = cleanVal.split('').map(c => c + c).join('');
-                }
+				if (cleanVal.length === 3 || cleanVal.length === 4) {
+					cleanVal = cleanVal.split('').map(c => c + c).join('');
+				}
 
-                if (cleanVal.length === 6 || cleanVal.length === 8) {
-                    const r = parseInt(cleanVal.substring(0, 2), 16);
-                    const g = parseInt(cleanVal.substring(2, 4), 16);
-                    const b = parseInt(cleanVal.substring(4, 6), 16);
+				if (cleanVal.length === 6 || cleanVal.length === 8) {
+					const r = parseInt(cleanVal.substring(0, 2), 16);
+					const g = parseInt(cleanVal.substring(2, 4), 16);
+					const b = parseInt(cleanVal.substring(4, 6), 16);
 
-                    let newA = 1;
-                    if (cleanVal.length === 8) {
-                        newA = parseInt(cleanVal.substring(6, 8), 16) / 255;
-                        newA = Math.round(newA * 100) / 100;
-                    }
+					let newA = 1;
+					if (cleanVal.length === 8) {
+						newA = parseInt(cleanVal.substring(6, 8), 16) / 255;
+						newA = Math.round(newA * 100) / 100;
+					}
 
-                    setRGB(r, g, b, newA, source);
-                }
-            };
+					setRGB(r, g, b, newA, source);
+				}
+			};
 
-            const handleRGBInput = (val, source) => {
-                const nums = extractNumbers(val);
-                if (nums.length >= 3) {
-                    const r = clamp(nums[0], 0, 255);
-                    const g = clamp(nums[1], 0, 255);
-                    const b = clamp(nums[2], 0, 255);
-                    setRGB(r, g, b, a, source);
-                }
-            };
+			const handleRGBInput = (val, source) => {
+				const nums = extractNumbers(val);
+				if (nums.length >= 3) {
+					const r = clamp(nums[0], 0, 255);
+					const g = clamp(nums[1], 0, 255);
+					const b = clamp(nums[2], 0, 255);
+					setRGB(r, g, b, a, source);
+				}
+			};
 
-            const handleRGBAInput = (val, source) => {
-                const nums = extractNumbers(val);
-                if (nums.length >= 3) {
-                    const r = clamp(nums[0], 0, 255);
-                    const g = clamp(nums[1], 0, 255);
-                    const b = clamp(nums[2], 0, 255);
-                    const newA = nums.length >= 4 ? clamp(nums[3], 0, 1) : a;
-                    setRGB(r, g, b, newA, source);
-                }
-            };
+			const handleRGBAInput = (val, source) => {
+				const nums = extractNumbers(val);
+				if (nums.length >= 3) {
+					const r = clamp(nums[0], 0, 255);
+					const g = clamp(nums[1], 0, 255);
+					const b = clamp(nums[2], 0, 255);
+					const newA = nums.length >= 4 ? clamp(nums[3], 0, 1) : a;
+					setRGB(r, g, b, newA, source);
+				}
+			};
 
-            hexHash.addEventListener('input', (e) => handleHexInput(e.target.value, 'hexHash'));
-            hex0x.addEventListener('input', (e) => handleHexInput(e.target.value, 'hex0x'));
-            rgbCss.addEventListener('input', (e) => handleRGBInput(e.target.value, 'rgbCss'));
-            rgbRaw.addEventListener('input', (e) => handleRGBInput(e.target.value, 'rgbRaw'));
-            rgbaCss.addEventListener('input', (e) => handleRGBAInput(e.target.value, 'rgbaCss'));
-            rgbaRaw.addEventListener('input', (e) => handleRGBAInput(e.target.value, 'rgbaRaw'));
-            
-            // Reformat dirty inputs nicely on blur / enter
-            const textInputs = [hexHash, hex0x, rgbCss, rgbRaw, rgbaCss, rgbaRaw];
-            textInputs.forEach(input => {
-                input.addEventListener('change', () => {
-                    updateUIFromHSV(); // Triggers a clean format to all fields
-                });
-            });
+			hexHash.addEventListener('input', (e) => handleHexInput(e.target.value, 'hexHash'));
+			hex0x.addEventListener('input', (e) => handleHexInput(e.target.value, 'hex0x'));
+			rgbCss.addEventListener('input', (e) => handleRGBInput(e.target.value, 'rgbCss'));
+			rgbRaw.addEventListener('input', (e) => handleRGBInput(e.target.value, 'rgbRaw'));
+			rgbaCss.addEventListener('input', (e) => handleRGBAInput(e.target.value, 'rgbaCss'));
+			rgbaRaw.addEventListener('input', (e) => handleRGBAInput(e.target.value, 'rgbaRaw'));
+			
+			// Reformat dirty inputs nicely on blur / enter
+			const textInputs = [hexHash, hex0x, rgbCss, rgbRaw, rgbaCss, rgbaRaw];
+			textInputs.forEach(input => {
+				input.addEventListener('change', () => {
+					updateUIFromHSV(); // Triggers a clean format to all fields
+				});
+			});
 
-            document.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const input = e.currentTarget.previousElementSibling;
-                    navigator.clipboard.writeText(input.value).then(() => {
-                        saveToHistory();
-                    }).catch(err => {
-                        console.error('Failed to copy: ', err);
-                    });
-                });
-            });
+			document.querySelectorAll('.copy-btn').forEach(btn => {
+				btn.addEventListener('click', (e) => {
+					const input = e.currentTarget.previousElementSibling;
+					navigator.clipboard.writeText(input.value).then(() => {
+						saveToHistory();
+					}).catch(err => {
+						console.error('Failed to copy: ', err);
+					});
+				});
+			});
 
-            document.querySelectorAll('input[type=text]').forEach(input => {
-                input.addEventListener('copy', () => {
-                    saveToHistory();
-                });
-            });
+			document.querySelectorAll('input[type=text]').forEach(input => {
+				input.addEventListener('copy', () => {
+					saveToHistory();
+				});
+			});
 
-            updateUIFromHSV();
-            renderHistory();
-        });
-    </script>
+			updateUIFromHSV();
+			renderHistory();
+		});
+	</script>
 </body>
 </html>
