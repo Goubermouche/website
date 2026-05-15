@@ -46,7 +46,7 @@
 		</a>
 	</div>
 	<h3>2D fluid simulations:</h3>
-	<div>I've also spent some time on making a simple 2D fluid simulation, inspired by <a href="https://store.steampowered.com/app/813230/ANIMAL_WELL/" target="_blank">Animal Well</a>, by Billy Basso, instead of going for top-of-the line performance I've focused on a simpler CPU-sided implementation similar to the fluidsim running in Animal Well.</div>
+	<div>I've also spent some time on making a simple 2D fluid simulation, inspired by <a href="https://store.steampowered.com/app/813230/ANIMAL_WELL/" target="_blank">Animal Well</a> by Billy Basso, instead of going for top-of-the line performance I've focused on a simpler CPU-sided implementation similar to the fluidsim running in Animal Well.</div>
 	<div>That being said the simulation itself is still not naive - the entire simulation grid is split up into chunks, which are adaptively computed via multiple cores (not all chunks are processed, only the ones we consider to be 'live', additionally, the chunks themselves have to be processed in a checkerboard pattern as to preserve simulation stability). The source code can be found <a href="https://github.com/Goubermouche/fluidsim" target="_blank">here</a>.</div>
 	<a href="../data/mp4/2d_fluidsim_2.mp4" target="_blank">
 		<video autoplay muted loop playsinline width="100%" title="optimized 2d fluidsim">
