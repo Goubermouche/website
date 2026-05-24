@@ -188,22 +188,6 @@ pre code.hcj {
 	margin: 0;
 }
 
-@media (max-width: 680px) {
-	.profile-card {
-		grid-template-columns: 1fr;
-	}
-
-	.pfp {
-		height: auto;
-		width: 100%;
-		order: -1;
-	}
-
-	.grid-container {
-		grid-template-columns: 1fr;
-	}
-}
-
 /*media*/
 .media-list {
 	column-width: 250px;
@@ -257,19 +241,29 @@ pre code.hcj {
 .gh-cell {
 	width: 100%;
 	aspect-ratio: 1 / 1;
-	background-color: #f5f4ff; 
 }
 
 .gh-cell-placeholder {
 	background-color: transparent !important;
 }
 
-.gh-cell[data-level="1"] { background-color: #c1c1ff; }
-.gh-cell[data-level="2"] { background-color: #8181ff; }
-.gh-cell[data-level="3"] { background-color: #3535ff; }
-.gh-cell[data-level="4"] { background-color: #0000ff; }
-
 .gh-cell:hover {
 	cursor: pointer;
 	z-index: 1;
+}
+
+@media (max-width: 680px) {
+	.profile-card {
+		grid-template-columns: 1fr;
+	}
+
+	.pfp {
+		height: auto;
+		width: 100%;
+		order: -1;
+	}
+
+	.grid-container {
+		grid-template-columns: 1fr;
+	}
 }
