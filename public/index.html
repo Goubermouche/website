@@ -29,31 +29,81 @@
 			<div>In my free time, I either toy with my homelab, spend time in my herb garden, or play Deadlock.</div>
 		</div>
 	</div>
-	<h3>Projects:</h3>
-	<ul>
-		<li><a href="https://github.com/Goubermouche/baremetal" target="_blank">baremetal</a> x86-64 assembler with support for most extensions</li>
-		<li><a href="https://github.com/Goubermouche/sigma" target="_blank">sigma</a> C-like programming language</li>
-		<li><a href="https://github.com/Goubermouche/VFD" target="_blank">vfd</a> Fluid simulation and rendering engine</li>
-		<li><a href="https://github.com/Goubermouche/sup" target="_blank">sup</a> <b>[WIP]</b> RISC-V instruction superoptimizer</li>
-	</ul>
-	<h3>Work experience:</h3>
-	<ul>
-		<li><a href="https://www.yosyshq.com/" target="_blank">YosysHQ</a> Jan 2026 – Now; C++ Formal Verification Engineer</li>
-		<li><a href="https://www.lim.cz/" target="_blank">Laboratory Imaging</a> Jun 2025 – Dec 2025; C++ Programmer</li>
-		<li><a href="https://www.generali.com/" target="_blank">Generali Group</a> Jun 2020 – Aug 2020; Software tester</li>
-	</ul>
-	<h3>Education:</h3>
-	<ul>
-		<li><a href="https://fit.cvut.cz/en" target="_blank">FIT CTU in Prague</a> 2023 – 2026; Bc. Computer Engineering</li>
-		<li><a href="https://ssps.cz/" target="_blank">SSPŠaG</a> 2019 – 2023; Maturita</li>
-	</ul>
-	<h3>Contact:</h3>
-	<ul>
-		<li><a href="mailto:simontupy64@gmail.com">Email</a> simontupy64@gmail.com</li>
-		<li><a href="https://github.com/Goubermouche" target="_blank">Github</a> Goubermouche</li>
-		<li><a href="https://discord.com/" target="_blank">Discord</a> @nellabeebee</li>
-		<li><a href="https://docs.google.com/document/d/1Q6WIiswCOrHSojWD8gmcaPgfaveyJyPXOsHzEWzOh78/edit?usp=sharing" target="_blank">Resume</a></li>
-	</ul>
+		<div class="github-board-container">
+		<div id="gh-grid" class="gh-grid"></div>
+	</div>
+	<div class="grid-container">
+		<div class="grid-item">
+			<h3>Projects:</h3>
+			<ul>
+				<li><a href="https://github.com/Goubermouche/baremetal" target="_blank">baremetal</a> x86-64 assembler</li>
+				<li><a href="https://github.com/Goubermouche/sigma" target="_blank">sigma</a> Programming language</li>
+				<li><a href="https://github.com/Goubermouche/VFD" target="_blank">vfd</a> Fluid simulation</li>
+				<li><a href="https://github.com/Goubermouche/sup" target="_blank">sup</a> RISC-V superoptimizer</li>
+			</ul>
+		</div>
+		<div class="grid-item">
+			<h3>Work experience:</h3>
+			<ul>
+				<li><a href="https://www.yosyshq.com/" target="_blank">YosysHQ</a> Jan 2026 – Now; C++ Formal Verification Engineer</li>
+				<li><a href="https://www.lim.cz/" target="_blank">Laboratory Imaging</a> Jun 2025 – Dec 2025; C++ Programmer</li>
+				<li><a href="https://www.generali.com/" target="_blank">Generali Group</a> Jun 2020 – Aug 2020; Software tester</li>
+			</ul>
+		</div>
+		<div class="grid-item">
+			<h3 style="margin-top: -14px;">Contact:</h3>
+			<ul>
+				<li><a href="https://github.com/Goubermouche" target="_blank">Github</a> Goubermouche</li>
+				<li><a href="https://discord.com/" target="_blank">Discord</a> @nellabeebee</li>
+				<li><a href="mailto:simontupy64@gmail.com">Email</a></li>
+			</ul>
+		</div>
+		<div class="grid-item">
+			<h3 style="margin-top: -14px;">Education:</h3>
+			<ul>
+				<li><a href="https://fit.cvut.cz/en" target="_blank">FIT CTU in Prague</a> 2023 – 2026; Bc. Computer Engineering</li>
+				<li><a href="https://ssps.cz/" target="_blank">SSPŠaG</a> 2019 – 2023; Maturita</li>
+				<li><a href="https://docs.google.com/document/d/1Q6WIiswCOrHSojWD8gmcaPgfaveyJyPXOsHzEWzOh78/edit?usp=sharing" target="_blank">Resume</a></li>
+			</ul>
+		</div>
+	</div>
+	<script>
+		async function loadGitHubActivity() {
+			const username = 'Goubermouche';
+			const grid = document.getElementById('gh-grid');
+			
+			try {
+				// Fetch raw JSON contribution data from a public proxy (cached to avoid rate limits)
+				const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+				const data = await res.json();
+				
+				// Calculate the day of the week for the first entry to align columns properly
+				const firstDate = new Date(data.contributions[0].date);
+				const emptyDays = firstDate.getDay(); 
+				
+				// Insert invisible padding cells so the first real day lands in the correct row
+				for (let i = 0; i < emptyDays; i++) {
+					const emptyCell = document.createElement('div');
+					emptyCell.classList.add('gh-cell', 'gh-cell-placeholder');
+					grid.appendChild(emptyCell);
+				}
+				
+				// Render the actual data
+				data.contributions.forEach(day => {
+					const cell = document.createElement('div');
+					cell.classList.add('gh-cell');
+					cell.setAttribute('data-level', day.level);
+					// Native HTML tooltip
+					cell.title = `${day.count} contributions on ${day.date}`;
+					grid.appendChild(cell);
+				});
+			} catch (error) {
+				console.error('Error fetching GitHub activity:', error);
+				grid.innerHTML = '<span style="color: #666; font-size: 0.9em;">Failed to load activity board.</span>';
+			}
+		}
+
+		loadGitHubActivity();
+	</script>
 </body>
 </html>
-
