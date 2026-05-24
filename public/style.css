@@ -227,13 +227,19 @@ pre code.hcj {
 .grid-container {
 	display: grid;
 	grid-template-columns: 0.56fr 1fr;
-	gap: 10px;
+	column-gap: 10px;
+	row-gap: 0px;
+}
+
+.grid-item {
+	margin-top: -2px;
+	margin-bottom: 0px;
 }
 
 /* GH activity*/
 .github-board-container {
 	width: 100%;
-	margin-bottom: -2px;
+	margin-bottom: 4px;
 }
 
 .github-board-container * {

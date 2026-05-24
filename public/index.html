@@ -51,7 +51,7 @@
 			</ul>
 		</div>
 		<div class="grid-item">
-			<h3 style="margin-top: -14px;">Contact:</h3>
+			<h3>Contact:</h3>
 			<ul>
 				<li><a href="https://github.com/Goubermouche" target="_blank">Github</a> Goubermouche</li>
 				<li><a href="https://discord.com/" target="_blank">Discord</a> @nellabeebee</li>
@@ -59,7 +59,7 @@
 			</ul>
 		</div>
 		<div class="grid-item">
-			<h3 style="margin-top: -14px;">Education:</h3>
+			<h3>Education:</h3>
 			<ul>
 				<li><a href="https://fit.cvut.cz/en" target="_blank">FIT CTU in Prague</a> 2023 – 2026; Bc. Computer Engineering</li>
 				<li><a href="https://ssps.cz/" target="_blank">SSPŠaG</a> 2019 – 2023; Maturita</li>
@@ -73,27 +73,21 @@
 			const grid = document.getElementById('gh-grid');
 			
 			try {
-				// Fetch raw JSON contribution data from a public proxy (cached to avoid rate limits)
 				const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
 				const data = await res.json();
-				
-				// Calculate the day of the week for the first entry to align columns properly
 				const firstDate = new Date(data.contributions[0].date);
 				const emptyDays = firstDate.getDay(); 
 				
-				// Insert invisible padding cells so the first real day lands in the correct row
 				for (let i = 0; i < emptyDays; i++) {
 					const emptyCell = document.createElement('div');
 					emptyCell.classList.add('gh-cell', 'gh-cell-placeholder');
 					grid.appendChild(emptyCell);
 				}
 				
-				// Render the actual data
 				data.contributions.forEach(day => {
 					const cell = document.createElement('div');
 					cell.classList.add('gh-cell');
 					cell.setAttribute('data-level', day.level);
-					// Native HTML tooltip
 					cell.title = `${day.count} contributions on ${day.date}`;
 					grid.appendChild(cell);
 				});
