@@ -1,9 +1,9 @@
 :root {
-	--background: #000000;
+	--background: #ffffff;
 	/*text*/
-	--plaintext: #ffffff;
+	--plaintext: #000000;
 	--disclaimer: #ff0a0a;
-	--link: #0a74ff;
+	--link: blue;
 	/*code*/
 	--code: #ffffff;
 	--code-comment-bg: #00ff00;
@@ -26,6 +26,12 @@ body {
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
 	tab-size: 4;
+	font-size: 14px;
+}
+
+h1, h2, h3, h4, h5 {
+	font-weight: 700;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 * {
@@ -35,7 +41,7 @@ body {
 
 a {
 	color: var(--link);
-	font-weight: bold;
+	font-weight: 500;
 }
 
 ul {
@@ -174,7 +180,7 @@ pre code.hcj {
 }
 
 .pfp {
-	height: 144px;
+	height: 126px;
 	width: auto;
 	aspect-ratio: 1 / 1;
 	object-fit: contain;
