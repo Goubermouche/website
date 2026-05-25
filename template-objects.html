@@ -28,106 +28,16 @@
 		</video>
 	</a>
 
-	<!-- code block -->
-<pre><code class="hcj language-cpp">
-<span class="hcj-function"><span class="hcj-keyword">auto</span> <span class="hcj-title">lexer::get_next_token</span><span class="hcj-params">()</span> -&gt; utility::result&lt;token_type&gt; </span>{
-	current_string.<span class="hcj-built_in">clear</span>();
-
-	<span class="hcj-comment">// get rid of leading space-like characters</span>
-	<span class="hcj-built_in">consume_spaces</span>();
-
-	<span class="hcj-comment">// special characters</span>
-	<span class="hcj-keyword">switch</span>(m_current_char) {
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;_&#x27;</span>:
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;.&#x27;</span>:
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;0&#x27;</span> ... <span class="hcj-string">&#x27;9&#x27;</span>: 
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;a&#x27;</span> ... <span class="hcj-string">&#x27;z&#x27;</span>:
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;A&#x27;</span> ... <span class="hcj-string">&#x27;Z&#x27;</span>: <span class="hcj-keyword">return</span> <span class="hcj-built_in">get_next_token_identifier</span>();
-
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;;&#x27;</span>:  <span class="hcj-keyword">return</span> <span class="hcj-built_in">get_next_token_comment</span>(); 
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;&quot;&#x27;</span>:  <span class="hcj-keyword">return</span> <span class="hcj-built_in">get_next_token_string</span>();
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;\&#x27;&#x27;</span>: <span class="hcj-keyword">return</span> <span class="hcj-built_in">get_next_token_char</span>();
-
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;,&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_COMMA;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;[&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_LBRACKET;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;]&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_RBRACKET;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;{&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_LBRACE;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;}&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_RBRACE;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;+&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_PLUS;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;-&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_MINUS;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;*&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_ASTERISK;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;$&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_DOLLARSIGN;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;:&#x27;</span>:  <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_COLON;
-		<span class="hcj-keyword">case</span> <span class="hcj-string">&#x27;\n&#x27;</span>: <span class="hcj-built_in">get_next_char</span>();  <span class="hcj-keyword">return</span> current = TOK_NEWLINE;
-		<span class="hcj-keyword">case</span> utility::g_eof:         <span class="hcj-keyword">return</span> current = TOK_EOF;
-	}
-
-	<span class="hcj-built_in">ASSERT</span>(<span class="hcj-literal">false</span>, <span class="hcj-string">&quot;unknown character &#x27;{}&#x27; received\n&quot;</span>, m_current_char);
-	<span class="hcj-keyword">return</span> utility::<span class="hcj-built_in">error</span>(<span class="hcj-string">&quot;unknown character received&quot;</span>);
-}</code></pre>
-
-<pre><code class="hcj language-cpp"><span class="hcj-function"><span class="hcj-keyword">auto</span> <span class="hcj-title">frontend::parse_instruction</span><span class="hcj-params">(utility::string_view* symbol)</span> -&gt; utility::result&lt;<span class="hcj-type">void</span>&gt; </span>{
-	<span class="hcj-comment">// locate the first instruction with the specified mnemonic</span>
-	<span class="hcj-type">const</span> u32 start = m_instruction_i = backend::<span class="hcj-built_in">get_instruction_by_name</span>(symbol-&gt;<span class="hcj-built_in">get_data</span>());
-
-	<span class="hcj-keyword">if</span>(m_instruction_i == utility::limits&lt;u32&gt;::<span class="hcj-built_in">max</span>()) {
-		<span class="hcj-built_in">ASSERT</span>(<span class="hcj-literal">false</span>, <span class="hcj-string">&quot;unknown instruction &#x27;{}&#x27; specified\n&quot;</span>, *symbol);
-	}
-
-	<span class="hcj-comment">// ensure our destination is clean</span>
-	utility::<span class="hcj-built_in">memset</span>(m_operands, <span class="hcj-number">0</span>, <span class="hcj-built_in">sizeof</span>(operand) * <span class="hcj-number">4</span>);
-
-	m_unresolved_index = utility::limits&lt;u8&gt;::<span class="hcj-built_in">max</span>();
-	m_broadcast_n = <span class="hcj-number">0</span>;
-	m_operand_i = <span class="hcj-number">0</span>;
-
-	<span class="hcj-comment">// parse instruction operands</span>
-	<span class="hcj-keyword">while</span>(m_lexer.current != TOK_EOF &amp;&amp; m_lexer.current != TOK_NEWLINE) {
-		<span class="hcj-keyword">switch</span>(m_lexer.current) {
-			<span class="hcj-keyword">case</span> TOK_LBRACKET:           <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_memory_operand</span>(DT_NONE)); <span class="hcj-keyword">break</span>; 
-			<span class="hcj-keyword">case</span> TOK_IDENTIFIER:         <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_identifier_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_MINUS:              <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_immediate_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_NUMBER:             <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_immediate_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_CR0 ... TOK_R15B:   <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_register_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_DOLLARSIGN:         <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_rip_rel_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_BYTE ... TOK_TWORD: <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_type_operand</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">case</span> TOK_CHAR:               <span class="hcj-built_in">TRY</span>(<span class="hcj-built_in">parse_operand_char</span>()); <span class="hcj-keyword">break</span>;
-			<span class="hcj-keyword">default</span>: <span class="hcj-built_in">ASSERT</span>(<span class="hcj-literal">false</span>, <span class="hcj-string">&quot;unexpected operand token: {}\n&quot;</span>, <span class="hcj-built_in">token_to_string</span>(m_lexer.current)); 
-		}
-
-		<span class="hcj-keyword">if</span>(m_lexer.current != TOK_COMMA) {
-			<span class="hcj-keyword">break</span>;
-		}
-
-		<span class="hcj-built_in">TRY</span>(m_lexer.<span class="hcj-built_in">get_next_token</span>());
-	}
-
-	<span class="hcj-comment">// locate the specific variant (dumb linear search in our specific mnemonic group)</span>
-	<span class="hcj-keyword">while</span>(m_instruction_i &lt; INSTRUCTION_DB_SIZE) {
-		<span class="hcj-type">const</span> instruction&amp; current = INSTRUCTION_DB[m_instruction_i]; 
-
-		<span class="hcj-comment">// verify that the instruction names are the same and that we&#x27;ve not left our instruction group</span>
-		<span class="hcj-keyword">if</span>(*symbol != current.name) {
-			<span class="hcj-keyword">break</span>;
-		}
-
-		<span class="hcj-comment">// verify that the current instruction matches the provided operands</span>
-		<span class="hcj-keyword">if</span>(detail::<span class="hcj-built_in">is_operand_match</span>(current, m_operands, m_broadcast_n, m_operand_i)) {
-			<span class="hcj-built_in">assemble_instruction</span>(&amp;current); <span class="hcj-comment">// matching instruction found, stage it</span>
-			<span class="hcj-keyword">return</span> SUCCESS;
-		}
-
-		m_instruction_i++;
-	}
-
-	utility::console::<span class="hcj-built_in">print_err</span>(<span class="hcj-string">&quot;&#x27;{}&#x27;: &quot;</span>, INSTRUCTION_DB[start].name);
-	<span class="hcj-keyword">for</span>(u8 i = <span class="hcj-number">0</span>; i &lt; m_operand_i; ++i) {
-		utility::console::<span class="hcj-built_in">print_err</span>(<span class="hcj-string">&quot;{} &quot;</span>, <span class="hcj-built_in">operand_type_to_string</span>(m_operands[i].type));
-	}
-
-	utility::console::<span class="hcj-built_in">print_err</span>(<span class="hcj-string">&quot;\n&quot;</span>);
-
-	<span class="hcj-keyword">return</span> utility::<span class="hcj-built_in">error</span>(<span class="hcj-string">&quot;invalid operand combination for the specified instruction&quot;</span>);
-}</code></pre>
+	<pre><code class="hcj language-cpp"><span class="hcj-meta">#<span class="hcj-keyword">include</span> <span class="hcj-string">&lt;iostream&gt;</span></span>
+<span class="hcj-keyword">using</span> <span class="hcj-keyword">namespace</span> std;
+<span class="hcj-function"><span class="hcj-type">int</span> <span class="hcj-title">main</span><span class="hcj-params">()</span></span>{
+  string url = <span class="hcj-string">&quot;https://html6.com&quot;</span>;
+  cout &lt;&lt; <span class="hcj-string">&quot;HTML6 Editor at &quot;</span> &lt;&lt; url &lt;&lt; <span class="hcj-string">&quot;\\n&quot;</span>;
+  <span class="hcj-keyword">for</span>(<span class="hcj-type">int</span> i=<span class="hcj-number">1</span>;i&lt;=<span class="hcj-number">3</span>;i++){
+    cout &lt;&lt; <span class="hcj-string">&quot;Feature &quot;</span> &lt;&lt; i &lt;&lt; <span class="hcj-string">&quot;\\n&quot;</span>;
+  }
+  <span class="hcj-keyword">return</span> <span class="hcj-number">0</span>;
+}
+</code></pre>
 </body>
 </html>

@@ -5,15 +5,14 @@
 	--disclaimer: #ff0a0a;
 	--link: blue;
 	/*code*/
-	--code: #ffffff;
-	--code-comment-bg: #00ff00;
+	--code: #000000;
 	--code-comment: #000000;
-	--code-keyword: #ff00ff;
-	--code-attribute: #00b7b7;
-	--code-identifier: #00ffff;
-	--code-string: #ffabf7;
-	--code-number: #98fff5;
-	--code-bool: #98fff5;
+	--code-keyword: #000000;
+	--code-attribute: #000000;
+	--code-identifier: #000000;
+	--code-string: #000000;
+	--code-number: #000000;
+	--code-bool: #000000;
 }
 
 body {
@@ -64,7 +63,7 @@ video {
 
 code {
 	color: var(--code);
-	font-size: 15px;
+	font-size: 14px;
 }
 
 /*code blocks*/
@@ -72,14 +71,13 @@ pre code.hcj {
 	display: block;
 	overflow-x: auto;
 	padding: 4px;
+	background-color: #ebebeb;
 }
 
 .code-comment,
 .hcj-comment,
 .hcj-quote {
 	color: var(--code-comment);
-	background: var(--code-comment-bg);
-	font-weight: bold;
 }
 
 .code-keyword,
@@ -87,6 +85,7 @@ pre code.hcj {
 .hcj-formula,
 .hcj-keyword {
 	color: var(--code-keyword);
+	font-weight: bold;
 }
 
 .hcj-deletion,
@@ -100,12 +99,11 @@ pre code.hcj {
 	color: var(--code-bool);
 }
 
-.hcj-addition,
+/* .hcj-addition,
 .hcj-attribute,
 .hcj-meta .hcj-string,
 .hcj-regexp {
-	color: red;
-}
+} */
 
 .code-attribute,
 .hcj-attr,
@@ -127,14 +125,11 @@ pre code.hcj {
 	font-weight: bold;
 }
 
-.hcj-meta {
-	color: red;
-	font-weight: bold;
+/* .hcj-meta {
 }
 
 .hcj-name {
-	color: red;
-}
+} */
 
 .code-string,
 .hcj-string {
