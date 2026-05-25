@@ -30,10 +30,10 @@
 		</div>
 	</div>
 		<div class="github-board-container">
-		<div id="gh-grid" class="gh-grid"></div>
+		<div id="github-grid" class="github-grid"></div>
 	</div>
-	<div class="grid-container">
-		<div class="grid-item">
+	<div class="mainpage-grid-container">
+		<div class="mainpage-grid-item ">
 			<h3>Projects:</h3>
 			<ul>
 				<li><a href="https://github.com/Goubermouche/baremetal" target="_blank">baremetal</a> x86-64 assembler</li>
@@ -42,7 +42,7 @@
 				<li><a href="https://github.com/Goubermouche/sup" target="_blank">sup</a> RISC-V superoptimizer</li>
 			</ul>
 		</div>
-		<div class="grid-item">
+		<div class="mainpage-grid-item ">
 			<h3>Work experience:</h3>
 			<ul>
 				<li><a href="https://www.yosyshq.com/" target="_blank">YosysHQ</a> Jan 2026 – Now; C++ Formal Verification Engineer</li>
@@ -50,7 +50,7 @@
 				<li><a href="https://www.generali.com/" target="_blank">Generali Group</a> Jun 2020 – Aug 2020; Software tester</li>
 			</ul>
 		</div>
-		<div class="grid-item">
+		<div class="mainpage-grid-item ">
 			<h3>Contact:</h3>
 			<ul>
 				<li><a href="https://github.com/Goubermouche" target="_blank">Github</a> Goubermouche</li>
@@ -58,7 +58,7 @@
 				<li><a href="mailto:simontupy64@gmail.com">Email</a></li>
 			</ul>
 		</div>
-		<div class="grid-item">
+		<div class="mainpage-grid-item ">
 			<h3>Education:</h3>
 			<ul>
 				<li><a href="https://fit.cvut.cz/en" target="_blank">FIT CTU in Prague</a> 2023 – 2026; Bc. Computer Engineering</li>
@@ -68,24 +68,24 @@
 		</div>
 	</div>
 	<script>
-	async function loadGitHubActivity() {
+	async function load_github_activity() {
 		const username = 'Goubermouche';
-		const grid = document.getElementById('gh-grid');
+		const grid = document.getElementById('github-grid');
 		
 		try {
 			const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
 			const data = await res.json();
 			
-			const firstDate = new Date(data.contributions[0].date);
-			const emptyDays = firstDate.getDay(); 
+			const first_date = new Date(data.contributions[0].date);
+			const empty_days = first_date.getDay(); 
 			
-			for (let i = 0; i < emptyDays; i++) {
-				const emptyCell = document.createElement('div');
-				emptyCell.classList.add('gh-cell', 'gh-cell-placeholder');
-				grid.appendChild(emptyCell);
+			for (let i = 0; i < empty_days; i++) {
+				const empty_cell = document.createElement('div');
+				empty_cell.classList.add('github-cell', 'github-cell-placeholder');
+				grid.appendChild(empty_cell);
 			}
 			
-			function getColor(count) {
+			function get_color(count) {
 				const ratio = Math.min(count / 10, 1);
 				const r1 = 245, g1 = 244, b1 = 255;
 				const r2 = 0, g2 = 0, b2 = 255;
@@ -98,18 +98,17 @@
 
 			data.contributions.forEach(day => {
 				const cell = document.createElement('div');
-				cell.classList.add('gh-cell');
-				cell.style.backgroundColor = getColor(day.count);
+				cell.classList.add('github-cell');
+				cell.style.backgroundColor = get_color(day.count);
 				cell.title = `${day.count} contributions on ${day.date}`;
 				grid.appendChild(cell);
 			});
 		} catch (error) {
 			console.error('error fetching gh activity:', error);
-			grid.innerHTML = '<span style="color: #666; font-size: 0.9em;">failed to load activity board</span>';
 		}
 	}
 
-	loadGitHubActivity();
+	load_github_activity();
 </script>
 </body>
 </html>
