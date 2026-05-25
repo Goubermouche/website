@@ -29,7 +29,7 @@
 			<div>In my free time, I either toy with my homelab, spend time in my herb garden, or play Deadlock.</div>
 		</div>
 	</div>
-		<div class="github-board-container">
+	<div class="github-board-container">
 		<div id="github-grid" class="github-grid"></div>
 	</div>
 	<div class="mainpage-grid-container">
@@ -68,47 +68,130 @@
 		</div>
 	</div>
 	<script>
-	async function load_github_activity() {
-		const username = 'Goubermouche';
-		const grid = document.getElementById('github-grid');
-		
-		try {
-			const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
-			const data = await res.json();
+		async function load_github_activity() {
+			const username = 'Goubermouche';
+			const grid = document.getElementById('github-grid');
+			const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+			const fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 			
-			const first_date = new Date(data.contributions[0].date);
-			const empty_days = first_date.getDay(); 
-			
-			for (let i = 0; i < empty_days; i++) {
-				const empty_cell = document.createElement('div');
-				empty_cell.classList.add('github-cell', 'github-cell-placeholder');
-				grid.appendChild(empty_cell);
+			function get_ordinal(n) {
+				if (n > 3 && n < 21) return n + 'th';
+				switch (n % 10) {
+					case 1:  return n + "st";
+					case 2:  return n + "nd";
+					case 3:  return n + "rd";
+					default: return n + "th";
+				}
 			}
-			
-			function get_color(count) {
-				const ratio = Math.min(count / 10, 1);
-				const r1 = 245, g1 = 244, b1 = 255;
-				const r2 = 0, g2 = 0, b2 = 255;
-				const r = Math.round(r1 + (r2 - r1) * ratio);
-				const g = Math.round(g1 + (g2 - g1) * ratio);
-				const b = Math.round(b1 + (b2 - b1) * ratio);
+
+			try {
+				const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+				const data = await res.json();
 				
-				return `rgb(${r}, ${g}, ${b})`;
+				const first_date = new Date(data.contributions[0].date);
+				const empty_days = first_date.getDay(); 
+				
+				let all_cols = [];
+				let current_col = [];
+				
+				// pad empty days at the start of the first week
+				for (let i = 0; i < empty_days; i++) {
+					current_col.push(null);
+				}
+				
+				data.contributions.forEach(day => {
+					current_col.push(day);
+					if (current_col.length === 7) {
+						all_cols.push(current_col);
+						current_col = [];
+					}
+				});
+				
+				if (current_col.length > 0) {
+					all_cols.push(current_col);
+				}
+				
+				// precalculate month labels
+				let labels = new Array(all_cols.length).fill("");
+				let last_month = -1;
+				
+				for(let i = 0; i < all_cols.length; i++) {
+					let valid_day = all_cols[i].find(d => d !== null);
+					if(valid_day) {
+						let m = new Date(valid_day.date).getMonth();
+						if(m !== last_month) {
+							labels[i] = months[m];
+							last_month = m;
+						}
+					}
+				}
+				
+				let last_idx = -10;
+				for(let i = 0; i < labels.length; i++) {
+					if(labels[i] !== "") {
+						if(i - last_idx < 4) {
+							if (last_idx === 0) {
+								labels[last_idx] = "";
+								last_idx = i;
+							} else {
+								labels[i] = "";
+							}
+						} else {
+							last_idx = i;
+						}
+					}
+				}
+
+				function get_color(count) {
+					const ratio = Math.min(count / 10, 1);
+					const r1 = 245, g1 = 244, b1 = 255;
+					const r2 = 0, g2 = 0, b2 = 255;
+					const r = Math.round(r1 + (r2 - r1) * ratio);
+					const g = Math.round(g1 + (g2 - g1) * ratio);
+					const b = Math.round(b1 + (b2 - b1) * ratio);
+					
+					return `rgb(${r}, ${g}, ${b})`;
+				}
+
+				all_cols.forEach((col, i) => {
+					// append the month header
+					const month_cell = document.createElement('div');
+					month_cell.classList.add('github-month-label');
+					month_cell.textContent = labels[i];
+					grid.appendChild(month_cell);
+
+					// append the week
+					col.forEach(day => {
+						if (day === null) {
+							const empty_cell = document.createElement('div');
+							empty_cell.classList.add('github-cell', 'github-cell-placeholder');
+							grid.appendChild(empty_cell);
+						} else {
+							const cell = document.createElement('div');
+							cell.classList.add('github-cell');
+							cell.style.backgroundColor = get_color(day.count);
+
+							// format tooltip date
+							const dateObj = new Date(day.date);
+							const monthName = fullMonths[dateObj.getMonth()];
+							const dayWithOrdinal = get_ordinal(dateObj.getDate());
+							cell.title = `${day.count === 0 ? 'No' : day.count} contributions on ${monthName} ${dayWithOrdinal}`;
+							grid.appendChild(cell);
+						}
+					});
+
+					for (let j = col.length; j < 7; j++) {
+						const empty_cell = document.createElement('div');
+						empty_cell.classList.add('github-cell', 'github-cell-placeholder');
+						grid.appendChild(empty_cell);
+					}
+				});
+			} catch (error) {
+				console.error('error fetching gh activity:', error);
 			}
-
-			data.contributions.forEach(day => {
-				const cell = document.createElement('div');
-				cell.classList.add('github-cell');
-				cell.style.backgroundColor = get_color(day.count);
-				cell.title = `${day.count} contributions on ${day.date}`;
-				grid.appendChild(cell);
-			});
-		} catch (error) {
-			console.error('error fetching gh activity:', error);
 		}
-	}
 
-	load_github_activity();
-</script>
+		load_github_activity();
+	</script>
 </body>
 </html>
