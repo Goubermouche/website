@@ -164,8 +164,9 @@ pre code.hcj {
 .profile-card {
 	display: grid;
 	grid-template-columns: 1fr auto;
-	gap:10px;
+	gap: 6px;
 	align-items: stretch;
+	margin-bottom: -2px;
 }
 
 .bio-text {
