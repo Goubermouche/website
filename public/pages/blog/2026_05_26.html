@@ -35,7 +35,7 @@
 		</div>
 		<!-- Program structure -->
 		<div>
-			<h3>Program Structure</h3>
+			<h3>Program Structure:</h3>
 			<div>
 				My more complex programs are structured as a series of layers - each layer acting as its own distinct section of
 				the
@@ -58,9 +58,9 @@
 				necessary context for anyone navigating the codebase.
 			</div>
 		</div>
-		<!-- Headers and Source Files -->
+		<!-- Headers and source files -->
 		<div>
-			<h3>Headers and Source Files</h3>
+			<h3>Headers and source files:</h3>
 			<div>
 				Unless there are obvious performance implications, I tend to shy away from the <code>inline</code> keyword. I
 				prefer the
@@ -80,9 +80,9 @@
 				lowercase comments.
 			</div>
 		</div>
-		<!-- Naming Scheme -->
+		<!-- Naming scheme -->
 		<div>
-			<h3>Naming Scheme</h3>
+			<h3>Naming scheme:</h3>
 			<div>
 				Here is a quick primer on how I name variables, functions, and types:
 			</div>
@@ -106,9 +106,9 @@
 				<li><b>Macros</b>: With the exception of include guards, macros use <code>CamelCase</code>.</li>
 			</ul>
 		</div>
-		<!-- Core Types -->
+		<!-- Core types -->
 		<div>
-			<h3>Core Types</h3>
+			<h3>Core types:</h3>
 			<div>
 				I prefer shorter names for primitive types. I consistently use these typedefs across my projects:
 			</div>
@@ -142,9 +142,9 @@
 				UTF-16, I don't currently maintain a wider string type.
 			</div>
 		</div>
-		<!-- Memory Management -->
+		<!-- Memory management -->
 		<div>
-			<h3>Memory Management</h3>
+			<h3>Memory management:</h3>
 			<div>
 				Lately, I've adopted <a href="https://www.dgtlgrove.com/p/untangling-lifetimes-the-arena-allocator"
 					target="_blank">Ryan Fleury's Arena approach</a> for managing lifetimes. Through this, I've realized I
@@ -167,7 +167,7 @@
 		</div>
 		<!-- Macros -->
 		<div>
-			<h3>Macros</h3>
+			<h3>Macros:</h3>
 			<div>
 				Beyond the naming scheme mentioned earlier, I prefer using a comment to explicitly highlight what an
 				<code>#endif</code> block
@@ -198,9 +198,9 @@ do {                                               \
 <span class="hcj-meta">#<span class="hcj-keyword">define</span> Max(a, b) (((a) &gt; (b)) ? (a) : (b))</span></code></pre>
 			</div>
 		</div>
-		<!-- Error Handling -->
+		<!-- Error handling -->
 		<div>
-			<h3>Error Handling</h3>
+			<h3>Error handling:</h3>
 			<div>
 				From my experience, a highly robust approach to error handling is defining a set of non-zero error codes, with
 				<code>0</code>
@@ -216,13 +216,13 @@ do {                                               \
 		</div>
 		<!-- Misc -->
 		<div>
-			<h3>Misc</h3>
+			<h3>Misc:</h3>
 			<div>
 				Finally, always <code>typedef</code> all structures (<code>typedef struct MyStruct { ... } MyStruct;</code>) and
 				enums. Additionally, enums
 				should <code>typedef</code> the underlying integer type meant for storing its members. For example, for
 				<code>SectionTypeEnum</code>, this
-				would look like: <code>typedef U32 SectionType;</code>.
+				would look like: <code>typedef U32 SectionType;</code>. I also limit myself to a 100 character line width.
 			</div>
 		</div>
 	</div>
