@@ -277,3 +277,13 @@ pre code.hcj {
 		display: none;
 	}
 }
+
+/*blog*/
+.blog-content {
+	text-align: justify;
+}
+
+.blog-date {
+	margin-bottom: 12px;
+	font-style: italic;
+}

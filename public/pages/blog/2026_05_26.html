@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="../../style.css">
+	<title>My C/C++ style guide</title>
+</head>
+
+<body>
+	<header>
+		<a href="../../index.html">home</a>
+		<a href="../blog.html">blog</a>
+		<a href="../showcase.html">show</a>
+		<a href="../homelab.html">lab</a>
+		<a href="../favourites.html">fav</a>
+		<a href="../resources.html">res</a>
+		<a href="../ideas.html">ideas</a>
+		<a href="../tools.html">tools</a>
+	</header>
+	<div class="blog-content">
+		<h1>My C/C++ style guide</h1>
+		<div class="blog-date">May 26th, 2026</div>
+		<div>
+			Throughout my years of programming, I've grown to prefer the simpler things. The most glaring example of this is
+			how
+			I approach software architecture. Beyond the specific rules listed below, I've fully embraced the <a
+				href="https://handmade.network/manifesto" target="_blank">Handmade ideology</a>. My primary inspiration for code
+			style is Epic Games' <a href="https://github.com/EpicGamesExt/raddebugger" target="_blank">raddebugger</a>, though
+			I
+			diverge in a few key aspects to
+			better suit my workflow.
+		</div>
+		<!-- Program structure -->
+		<div>
+			<h3>Program Structure</h3>
+			<div>
+				My more complex programs are structured as a series of layers - each layer acting as its own distinct section of
+				the
+				program. Physically, these are represented as individual directories at the top level of the project. A strict
+				rule
+				is that layers must not form cyclical dependencies between one another, nor should they nest inside other
+				layers.
+				Every layer must be usable on its own (alongside its required dependencies) in a meaningful way.
+			</div>
+			<div>
+				Logically, layers also serve as namespaces. Every object within a layer (functions, structs, etc.) uses a short
+				prefix inspired by the layer's name, followed by an underscore (e.g., an object in the <code>optimize</code>
+				layer
+				gets the
+				prefix <code>opt_</code>).
+			</div>
+			<div>
+				Depending on a layer's complexity, I also like to include a <code>README.md</code> in its top-level directory to
+				provide
+				necessary context for anyone navigating the codebase.
+			</div>
+		</div>
+		<!-- Headers and Source Files -->
+		<div>
+			<h3>Headers and Source Files</h3>
+			<div>
+				Unless there are obvious performance implications, I tend to shy away from the <code>inline</code> keyword. I
+				prefer the
+				traditional approach of splitting declarations and definitions between header and source files.
+			</div>
+			<div>
+				I also stick to the "old-school" method of using include guards:
+			</div>
+			<pre><code class="hcj language-cpp"><span class="hcj-meta">#<span class="hcj-keyword">ifndef</span> SOME_HEADER_H</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> SOME_HEADER_H</span>
+...
+<span class="hcj-meta">#<span class="hcj-keyword">endif</span> <span class="hcj-comment">// SOME_HEADER_H</span></span></code></pre>
+			<div>
+				This is purely because I still interact with older or specialized compilers that don't reliably support <code>#pragma
+			once</code>. Additionally, I abstain from using multi-line comments (<code>/* ... */</code>), exclusively opting
+				for single-line
+				lowercase comments.
+			</div>
+		</div>
+		<!-- Naming Scheme -->
+		<div>
+			<h3>Naming Scheme</h3>
+			<div>
+				Here is a quick primer on how I name variables, functions, and types:
+			</div>
+			<ul>
+				<li><b>Types</b>: All types use <code>CamelCase</code> (e.g., <code>SharedBatch</code>). Enums are suffixed with
+					<code>Enum</code> (e.g., <code>SectionTypeEnum</code>).
+				</li>
+				<li><b>Enum Members</b>: Every member of an enum is prefixed with the enum's name (minus the suffix) and an
+					underscore.
+					For
+					example, a member of the aforementioned enum would be named <code>SectionType_StringTable</code>.</li>
+				<li><b>Functions & Variables</b>: All function identifiers and non-constant variables use
+					<code>snake_case</code>.
+				</li>
+				<li><b>Constants</b>: Constant variables use <code>CamelCase</code>.</li>
+				<li><b>Special Variables</b>: Global or device variables use a single-letter prefix, such as
+					<code>g_context</code> for a global
+					context. If multiple qualifiers apply, they are combined - for example, <code>gd_context</code> for a global
+					device context.
+				</li>
+				<li><b>Macros</b>: With the exception of include guards, macros use <code>CamelCase</code>.</li>
+			</ul>
+		</div>
+		<!-- Core Types -->
+		<div>
+			<h3>Core Types</h3>
+			<div>
+				I prefer shorter names for primitive types. I consistently use these typedefs across my projects:
+			</div>
+			<pre><code class="hcj language-cpp"><span class="hcj-keyword">typedef</span> <span class="hcj-type">uint8_t</span>  U8;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">uint16_t</span> U16;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">uint32_t</span> U32;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">uint64_t</span> U64;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">int8_t</span>   I8;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">int16_t</span>  I16;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">int32_t</span>  I32;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">int64_t</span>  I64;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">float</span>    F32;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">double</span>   F64;
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">int32_t</span>  B32; <span class="hcj-comment">// 32-bit boolean</span>
+<span class="hcj-keyword">typedef</span> <span class="hcj-type">char8_t</span>  C8;</code></pre>
+			<div>
+				I also expose a few core types that I use everywhere. The most essential is a basic string:
+			</div>
+			<pre><code class="hcj language-cpp"><span class="hcj-keyword">typedef</span> <span class="hcj-keyword">struct</span> <span class="hcj-title class_">Str</span> {
+	C8* ptr;  <span class="hcj-comment">// null-terminated at ptr[size]</span>
+	U64 size;
+} Str;</code></pre>
+			<div>
+				The extra cost of those 8 bytes for the size is negligible in most applications, and it easily outweighs the
+				overhead of repeatedly calculating string lengths at runtime. I'm currently toying with a 4-byte size variant
+				for
+				applications where a full 64-bit size isn't required (perhaps naming the larger one <code>LongStr</code>). I'm
+				also considering
+				renaming my basic string type to <code>S8</code>, though I haven't fully committed to the switch yet. Since I
+				rarely work with
+				UTF-16, I don't currently maintain a wider string type.
+			</div>
+		</div>
+		<!-- Memory Management -->
+		<div>
+			<h3>Memory Management</h3>
+			<div>
+				Lately, I've adopted <a href="https://www.dgtlgrove.com/p/untangling-lifetimes-the-arena-allocator"
+					target="_blank">Ryan Fleury's Arena approach</a> for managing lifetimes. Through this, I've realized I
+				essentially
+				have no need for dynamic arrays or vectors. A simple implementation like the one below has been more than enough
+				for
+				all of my projects so far:
+			</div>
+			<pre><code class="hcj language-cpp"><span class="hcj-keyword">typedef</span> <span class="hcj-keyword">struct</span> <span class="hcj-title class_">ArenaBlock</span> {
+	<span class="hcj-keyword">struct</span> <span class="hcj-title class_">ArenaBlock</span>* next;
+	U64 size; <span class="hcj-comment">// total bytes in base</span>
+	U64 used; <span class="hcj-comment">// bytes currently used</span>
+	U8 base[]; <span class="hcj-comment">// C99 flexible array member</span>
+} ArenaBlock;
+
+<span class="hcj-keyword">typedef</span> <span class="hcj-keyword">struct</span> <span class="hcj-title class_">Arena</span> {
+	ArenaBlock* head;
+	U64 block_size;
+} Arena;</code></pre>
+		</div>
+		<!-- Macros -->
+		<div>
+			<h3>Macros</h3>
+			<div>
+				Beyond the naming scheme mentioned earlier, I prefer using a comment to explicitly highlight what an
+				<code>#endif</code> block
+				is
+				closing. My most heavily used macro is probably my custom <code>Assert</code>:
+			</div>
+			<div>
+				<pre><code class="hcj language-cpp"><span class="hcj-meta">#<span class="hcj-keyword">define</span> DebugBreak() raise(SIGTRAP)</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> Assert(__condition, __message, ...)        \
+do {                                               \
+	<span class="hcj-keyword">if</span>(!(__condition)) {                           \
+		fprintf(stderr, __message, ##__VA_ARGS__); \
+		fflush(stderr);                            \
+		DebugBreak();                              \
+	}                                              \
+} while(0)</span></code></pre>
+			</div>
+			<div>
+				Along with some standard mathematical must-haves:
+			</div>
+			<div>
+				<pre><code class="hcj language-cpp"><span class="hcj-meta">#<span class="hcj-keyword">define</span> KB(n) (((U64)(n)) &lt;&lt; 10)</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> MB(n) (((U64)(n)) &lt;&lt; 20)</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> GB(n) (((U64)(n)) &lt;&lt; 30)</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> TB(n) (((U64)(n)) &lt;&lt; 40)</span>
+
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> Min(a, b) (((a) &lt; (b)) ? (a) : (b))</span>
+<span class="hcj-meta">#<span class="hcj-keyword">define</span> Max(a, b) (((a) &gt; (b)) ? (a) : (b))</span></code></pre>
+			</div>
+		</div>
+		<!-- Error Handling -->
+		<div>
+			<h3>Error Handling</h3>
+			<div>
+				From my experience, a highly robust approach to error handling is defining a set of non-zero error codes, with
+				<code>0</code>
+				representing success. With this scheme, there is no issue passing an <code>I32</code> value down the stack and
+				eventually (in
+				the
+				case of a fatal error) propagating it directly into the entry point's return value to be handed off to the OS.
+				This
+				pattern is especially useful as a global standard for constructors and other operations that can encounter a
+				failure
+				state.
+			</div>
+		</div>
+		<!-- Misc -->
+		<div>
+			<h3>Misc</h3>
+			<div>
+				Finally, always <code>typedef</code> all structures (<code>typedef struct MyStruct { ... } MyStruct;</code>) and
+				enums. Additionally, enums
+				should <code>typedef</code> the underlying integer type meant for storing its members. For example, for
+				<code>SectionTypeEnum</code>, this
+				would look like: <code>typedef U32 SectionType;</code>.
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>
