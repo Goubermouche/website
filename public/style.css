@@ -1,5 +1,6 @@
 :root {
 	--background: #ffffff;
+	--background-accent: #ebebeb;
 	/*text*/
 	--plaintext: #000000;
 	--disclaimer: #ff0a0a;
@@ -61,6 +62,25 @@ video {
 	font-style: italic;
 }
 
+table {
+	width: 100%;
+	border-collapse: collapse; 
+}
+
+th, td {
+	padding-left: 8px;
+	padding-right: 8px;
+	text-align: left;
+}
+
+table, th, td {
+	border: 1px solid color-mix(in srgb, var(--background-accent), black 10%);
+}
+
+tr:first-child {
+	background-color: var(--background-accent);
+}
+
 code {
 	color: var(--code);
 	font-size: 14px;
@@ -71,7 +91,7 @@ pre code.hcj {
 	display: block;
 	overflow-x: auto;
 	padding: 4px;
-	background-color: #ebebeb;
+	background-color: var(--background-accent);
 }
 
 .code-comment,
