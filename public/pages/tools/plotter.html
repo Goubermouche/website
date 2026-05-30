@@ -8,6 +8,22 @@
 	<link rel="stylesheet" href="../../style.css">
 	<title>CSV plotter</title>
 	<style>
+		body {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		input[type="text"],
+		input[type="number"],
+		textarea {
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			user-select: text;
+		}
+
 		#main-ui * {
 			margin-top: unset;
 			margin-bottom: unset;
@@ -369,21 +385,21 @@
 				let safe_name_js = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
 				html += `
-								<div style="border: 1px solid #8F8F9D; padding: 2px; display: flex; flex-direction: column; gap: 0px; width: 98px; flex-shrink: 0;">
-									<input type="text" value="${safe_name_obj}" onchange="rename_series('${safe_name_js}', this.value)" title="Edit series name">
-										<div style="display: flex; align-items: center;">
-												<span>color:</span>
-												<input type="color" value="${conf.color}" onchange="update_line_conf('${safe_name_js}', 'color', this.value)" style="height: 20px; padding: 0;">
-										</div>
-										<div style="display: flex; align-items: center;">
-												<span>width:</span>
-												<input type="number" min="0.5" max="10" step="0.5" value="${conf.width}" onchange="update_line_conf('${safe_name_js}', 'width', this.value)" style="width: 45px;">
-										</div>
-										<select onchange="update_line_conf('${safe_name_js}', 'style', this.value)">
-												<option value="solid" ${conf.style === 'solid' ? 'selected' : ''}>solid</option>
-												<option value="dashed" ${conf.style === 'dashed' ? 'selected' : ''}>dashed</option>
-										</select>
-								</div>`;
+                <div style="border: 1px solid #8F8F9D; padding: 2px; display: flex; flex-direction: column; gap: 0px; width: 98px; flex-shrink: 0;">
+                  <input type="text" value="${safe_name_obj}" onchange="rename_series('${safe_name_js}', this.value)" title="Edit series name">
+                    <div style="display: flex; align-items: center;">
+                        <span>color:</span>
+                        <input type="color" value="${conf.color}" onchange="update_line_conf('${safe_name_js}', 'color', this.value)" style="height: 20px; padding: 0;">
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span>width:</span>
+                        <input type="number" min="0.5" max="10" step="0.5" value="${conf.width}" onchange="update_line_conf('${safe_name_js}', 'width', this.value)" style="width: 45px;">
+                    </div>
+                    <select onchange="update_line_conf('${safe_name_js}', 'style', this.value)">
+                        <option value="solid" ${conf.style === 'solid' ? 'selected' : ''}>solid</option>
+                        <option value="dashed" ${conf.style === 'dashed' ? 'selected' : ''}>dashed</option>
+                    </select>
+                </div>`;
 			});
 			document.getElementById('lineSettings').innerHTML = html;
 		}
@@ -535,7 +551,8 @@
 
 			html_str += `</div>`;
 
-			const style_block = `<style>.responsive-plot-wrapper{position:relative;width:100%;height:100%;min-height:350px;box-sizing:border-box}.plot-area{position:absolute;border-left:1px solid black;border-bottom:1px solid black;box-sizing:border-box}.plot-svg{width:100%;height:100%;display:block;overflow:visible}.plot-grid{stroke:#e0e0e0;stroke-width:1;vector-effect:non-scaling-stroke}.tick-mark-x{position:absolute;top:100%;width:1px;height:4px;background:black;transform:translateX(-50%)}.tick-text-x{position:absolute;top:calc(100% + 7px);color:black;white-space:nowrap}.tick-mark-y{position:absolute;right:100%;width:4px;height:1px;background:black;transform:translateY(-50%)}.tick-text-y{position:absolute;right:calc(100% + 8px);transform:translateY(-50%);white-space:nowrap}.plot-label{position:absolute}.plot-legend{position:absolute;background:white;border:1px solid #8F8F9D;padding:2px 4px;display:flex;flex-direction:column;font-size:10px;z-index:10}.legend-item{margin-top:unset;margin-bottom:unset;display:flex;align-items:center;gap:0px 5px}.legend-swatch{width:14px;height:0}</style>\n`;
+			// Maintained unselectable styling on the exported snippet's generated elements as well
+			const style_block = `<style>.responsive-plot-wrapper{position:relative;width:100%;height:100%;min-height:350px;box-sizing:border-box}.plot-area{position:absolute;border-left:1px solid black;border-bottom:1px solid black;box-sizing:border-box}.plot-svg{width:100%;height:100%;display:block;overflow:visible}.plot-grid{stroke:#e0e0e0;stroke-width:1;vector-effect:non-scaling-stroke}.tick-mark-x{position:absolute;top:100%;width:1px;height:4px;background:black;transform:translateX(-50%)}.tick-text-x{position:absolute;top:calc(100% + 7px);color:black;white-space:nowrap;-webkit-user-select:none;user-select:none;}.tick-mark-y{position:absolute;right:100%;width:4px;height:1px;background:black;transform:translateY(-50%)}.tick-text-y{position:absolute;right:calc(100% + 8px);transform:translateY(-50%);white-space:nowrap;-webkit-user-select:none;user-select:none;}.plot-label{position:absolute;-webkit-user-select:none;user-select:none;}.plot-legend{position:absolute;background:white;border:1px solid #8F8F9D;padding:2px 4px;display:flex;flex-direction:column;font-size:10px;z-index:10;-webkit-user-select:none;user-select:none;}.legend-item{margin-top:unset;margin-bottom:unset;display:flex;align-items:center;gap:0px 5px}.legend-swatch{width:14px;height:0}</style>\n`;
 
 			const final_code = (export_styles ? style_block : '') + html_str;
 
