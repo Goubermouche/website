@@ -183,6 +183,12 @@
 							const monthName = fullMonths[dateObj.getMonth()];
 							const dayWithOrdinal = get_ordinal(dateObj.getDate());
 							cell.title = `${day.count === 0 ? 'No' : day.count} contributions on ${monthName} ${dayWithOrdinal}`;
+							
+							// gh clickthrough
+							cell.onclick = () => {
+								window.open(`https://github.com/${username}?from=${day.date}&to=${day.date}`, '_blank');
+							};
+
 							grid.appendChild(cell);
 						}
 					});
