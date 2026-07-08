@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="../../style.css">
+	<title>Timer</title>
+	<style>
+		.clock-container * {
+			margin-top: unset;
+			margin-bottom: unset;
+		}
+
+		.mode-tabs {
+			display: flex;
+			gap: 4px;
+			margin-top: 8px;
+		}
+
+		.mode-tabs button {
+			flex: 1;
+			cursor: pointer;
+		}
+
+		.mode-tabs button.active {
+			font-weight: 700;
+		}
+
+		.setup {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			margin-top: 8px;
+		}
+
+		.row {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.row input[type=number] {
+			font-family: monospace;
+			font-size: 40px;
+			flex: 1;
+			min-width: 0;
+			text-align: center;
+			-moz-appearance: textfield;
+			appearance: textfield;
+		}
+
+		.row input[type=number]::-webkit-inner-spin-button,
+		.row input[type=number]::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.colon {
+			font-family: monospace;
+			font-size: 40px;
+		}
+
+		.controls {
+			display: flex;
+			gap: 4px;
+			margin-top: 8px;
+		}
+
+		.controls button {
+			flex: 1;
+			cursor: pointer;
+			font-size: 14px;
+		}
+
+		.sw-display {
+			font-family: monospace;
+			font-size: 40px;
+			margin-top: 8px;
+		}
+
+		.pending {
+			display: flex;
+			flex-direction: column;
+			margin-top: 8px;
+		}
+
+		.pending-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 2px 0;
+		}
+
+		.pending-item .desc {
+			flex-grow: 1;
+			font-family: monospace;
+		}
+
+		.pending-item button {
+			cursor: pointer;
+			font-size: 14px;
+		}
+
+		.pending-item.ringing {
+			background-color: var(--background-accent);
+			font-weight: 700;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<a href="../../index.html">home</a>
+		<a href="../blog.html">blog</a>
+		<a href="../showcase.html">show</a>
+		<a href="../homelab.html">lab</a>
+		<a href="../favourites.html">fav</a>
+		<a href="../resources.html">res</a>
+		<a href="../ideas.html">ideas</a>
+		<a href="../tools.html">tools</a>
+	</header>
+	<h1>Timer</h1>
+	<div class="clock-container">
+		<div class="mode-tabs">
+			<button id="tab-timer" class="active">timer</button>
+			<button id="tab-alarm">alarm</button>
+			<button id="tab-stopwatch">stopwatch</button>
+		</div>
+
+		<div class="setup" id="setup-timer">
+			<div class="row">
+				<input type="number" id="timer-h" data-min="0" data-max="59" value="0">
+				<span class="colon">:</span>
+				<input type="number" id="timer-m" data-min="0" data-max="59" value="5">
+				<span class="colon">:</span>
+				<input type="number" id="timer-s" data-min="0" data-max="59" value="0">
+			</div>
+		</div>
+
+		<div class="setup" id="setup-alarm" style="display:none">
+			<div class="row">
+				<input type="number" id="alarm-h" data-min="0" data-max="23" value="8">
+				<span class="colon">:</span>
+				<input type="number" id="alarm-m" data-min="0" data-max="59" value="0">
+				<span class="colon">:</span>
+				<input type="number" id="alarm-s" data-min="0" data-max="59" value="0">
+			</div>
+		</div>
+
+		<div class="controls" id="controls-set">
+			<button id="set-btn">set</button>
+		</div>
+
+		<div class="pending" id="pending"></div>
+
+		<div id="setup-stopwatch" style="display:none">
+			<div class="sw-display" id="sw-display">00:00:00.0</div>
+			<div class="controls">
+				<button id="sw-toggle">start</button>
+				<button id="sw-reset">reset</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const tabTimer = document.getElementById('tab-timer');
+			const tabAlarm = document.getElementById('tab-alarm');
+			const tabStopwatch = document.getElementById('tab-stopwatch');
+			const setupTimer = document.getElementById('setup-timer');
+			const setupAlarm = document.getElementById('setup-alarm');
+			const setupStopwatch = document.getElementById('setup-stopwatch');
+			const controlsSet = document.getElementById('controls-set');
+			const pendingEl = document.getElementById('pending');
+			const timerH = document.getElementById('timer-h');
+			const timerM = document.getElementById('timer-m');
+			const timerS = document.getElementById('timer-s');
+			const alarmH = document.getElementById('alarm-h');
+			const alarmM = document.getElementById('alarm-m');
+			const alarmS = document.getElementById('alarm-s');
+			const setBtn = document.getElementById('set-btn');
+
+			const swDisplay = document.getElementById('sw-display');
+			const swToggle = document.getElementById('sw-toggle');
+			const swReset = document.getElementById('sw-reset');
+
+			let mode = 'timer';
+			let timers = [];
+			let nextId = 1;
+
+			function pad(n) { return String(n).padStart(2, '0'); }
+
+			const NOTE_LEN = 0.4;
+			let audioCtx = null;
+			let ringLoop = null;
+			let nextNoteTime = 0;
+			let noteIndex = 0;
+
+			function ensureCtx() {
+				if (!audioCtx) {
+					try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
+				}
+				if (audioCtx.state === 'suspended') audioCtx.resume();
+				return audioCtx;
+			}
+
+			function scheduleNote(time, i) {
+				const osc = audioCtx.createOscillator();
+				const gain = audioCtx.createGain();
+				osc.type = 'sine';
+				osc.frequency.value = i % 2 === 0 ? 880 : 660;
+				gain.gain.setValueAtTime(0.0001, time);
+				gain.gain.exponentialRampToValueAtTime(0.4, time + 0.02);
+				gain.gain.exponentialRampToValueAtTime(0.0001, time + NOTE_LEN - 0.05);
+				osc.connect(gain);
+				gain.connect(audioCtx.destination);
+				osc.start(time);
+				osc.stop(time + NOTE_LEN);
+			}
+
+			function ringScheduler() {
+				if (!audioCtx) return;
+				while (nextNoteTime < audioCtx.currentTime + 0.2) {
+					scheduleNote(nextNoteTime, noteIndex++);
+					nextNoteTime += NOTE_LEN;
+				}
+			}
+
+			function startRinging() {
+				if (ringLoop || !ensureCtx()) return;
+				nextNoteTime = audioCtx.currentTime;
+				noteIndex = 0;
+				ringScheduler();
+				ringLoop = setInterval(ringScheduler, 100);
+			}
+
+			function stopRinging() {
+				if (ringLoop) { clearInterval(ringLoop); ringLoop = null; }
+			}
+
+			function wrapField(input) {
+				const min = parseInt(input.dataset.min), max = parseInt(input.dataset.max);
+				const span = max - min + 1;
+				const wrap = (v) => ((v - min) % span + span) % span + min;
+				const step = (dir) => {
+					input.value = wrap((parseInt(input.value) || min) + dir);
+				};
+				input.addEventListener('keydown', (e) => {
+					if (e.key === 'ArrowUp') { e.preventDefault(); step(1); }
+					else if (e.key === 'ArrowDown') { e.preventDefault(); step(-1); }
+				});
+				input.addEventListener('wheel', (e) => {
+					e.preventDefault();
+					step(e.deltaY < 0 ? 1 : -1);
+				}, { passive: false });
+				input.addEventListener('input', () => {
+					const v = parseInt(input.value);
+					if (!isNaN(v) && (v < min || v > max)) input.value = wrap(v);
+				});
+				input.addEventListener('change', () => {
+					input.value = wrap(parseInt(input.value) || min);
+				});
+			}
+
+			[timerH, timerM, timerS, alarmH, alarmM, alarmS].forEach(wrapField);
+
+			function setMode(m) {
+				mode = m;
+				tabTimer.classList.toggle('active', m === 'timer');
+				tabAlarm.classList.toggle('active', m === 'alarm');
+				tabStopwatch.classList.toggle('active', m === 'stopwatch');
+
+				const isStopwatch = m === 'stopwatch';
+				setupTimer.style.display = m === 'timer' ? '' : 'none';
+				setupAlarm.style.display = m === 'alarm' ? '' : 'none';
+				controlsSet.style.display = isStopwatch ? 'none' : '';
+				pendingEl.style.display = isStopwatch ? 'none' : '';
+				setupStopwatch.style.display = isStopwatch ? '' : 'none';
+
+				timerH.value = timerM.value = timerS.value = 0;
+				alarmH.value = new Date().getHours();
+				alarmM.value = alarmS.value = 0;
+				resetStopwatch();
+			}
+
+			tabTimer.addEventListener('click', () => setMode('timer'));
+			tabAlarm.addEventListener('click', () => setMode('alarm'));
+			tabStopwatch.addEventListener('click', () => setMode('stopwatch'));
+
+			function nextAlarmTime(hh, mm, ss) {
+				const d = new Date();
+				d.setHours(hh, mm, ss, 0);
+				if (d <= new Date()) d.setDate(d.getDate() + 1);
+				return d;
+			}
+
+			function addTimer(t) {
+				t.id = nextId++;
+				t.ringing = false;
+				timers.push(t);
+				renderPending();
+			}
+
+			setBtn.addEventListener('click', () => {
+				ensureCtx();
+				if (mode === 'timer') {
+					const h = parseInt(timerH.value) || 0;
+					const m = parseInt(timerM.value) || 0;
+					const s = parseInt(timerS.value) || 0;
+					const total = h * 3600 + m * 60 + s;
+					if (total <= 0) return;
+					addTimer({
+						type: 'timer',
+						durationMs: total * 1000,
+						fireAt: Date.now() + total * 1000,
+						desc: `timer ${pad(h)}:${pad(m)}:${pad(s)}`
+					});
+				} else {
+					const hh = parseInt(alarmH.value) || 0;
+					const mm = parseInt(alarmM.value) || 0;
+					const ss = parseInt(alarmS.value) || 0;
+					addTimer({
+						type: 'alarm',
+						hh, mm, ss,
+						fireAt: nextAlarmTime(hh, mm, ss).getTime(),
+						desc: `alarm ${pad(hh)}:${pad(mm)}:${pad(ss)}`
+					});
+				}
+			});
+
+			function syncRinging() {
+				if (timers.some(t => t.ringing)) startRinging();
+				else stopRinging();
+			}
+
+			function removeTimer(id) {
+				timers = timers.filter(x => x.id !== id);
+				syncRinging();
+				renderPending();
+			}
+
+			function resetTimer(id) {
+				const t = timers.find(x => x.id === id);
+				if (!t) return;
+				t.ringing = false;
+				t.fireAt = t.type === 'alarm'
+					? nextAlarmTime(t.hh, t.mm, t.ss).getTime()
+					: Date.now() + t.durationMs;
+				syncRinging();
+				renderPending();
+			}
+
+			function renderPending() {
+				pendingEl.innerHTML = '';
+				timers.forEach(t => {
+					const item = document.createElement('div');
+					item.className = 'pending-item' + (t.ringing ? ' ringing' : '');
+
+					const desc = document.createElement('span');
+					desc.className = 'desc';
+					if (t.ringing) desc.textContent = `${t.desc} - RINGING`;
+					item.appendChild(desc);
+					item._descEl = desc;
+
+					const resetBtn = document.createElement('button');
+					resetBtn.textContent = 'reset';
+					resetBtn.addEventListener('click', () => resetTimer(t.id));
+					item.appendChild(resetBtn);
+
+					const btn = document.createElement('button');
+					btn.textContent = t.ringing ? 'stop' : 'cancel';
+					btn.addEventListener('click', () => removeTimer(t.id));
+					item.appendChild(btn);
+
+					t._el = item;
+					pendingEl.appendChild(item);
+				});
+			}
+
+			let swRunning = false;
+			let swElapsed = 0;
+			let swStart = 0;
+
+			function fmtStopwatch(ms) {
+				const t = Math.floor(ms / 1000);
+				const millis = Math.floor(ms % 1000);
+				const h = Math.floor(t / 3600);
+				const m = Math.floor((t % 3600) / 60);
+				const s = t % 60;
+				return `${pad(h)}:${pad(m)}:${pad(s)}.${String(millis).padStart(3, '0')}`;
+			}
+
+			swToggle.addEventListener('click', () => {
+				if (swRunning) {
+					swElapsed += Date.now() - swStart;
+					swRunning = false;
+					swToggle.textContent = 'start';
+				} else {
+					swStart = Date.now();
+					swRunning = true;
+					swToggle.textContent = 'stop';
+					swFrame();
+				}
+			});
+
+			function resetStopwatch() {
+				swRunning = false;
+				swElapsed = 0;
+				swToggle.textContent = 'start';
+				swDisplay.textContent = fmtStopwatch(0);
+			}
+
+			swReset.addEventListener('click', resetStopwatch);
+
+			function tick() {
+				const ts = Date.now();
+				let fired = false;
+				timers.forEach(t => {
+					if (!t.ringing && ts >= t.fireAt) {
+						t.ringing = true;
+						fired = true;
+					}
+					if (t._el && !t.ringing) {
+						const remain = Math.max(0, Math.round((t.fireAt - ts) / 1000));
+						const rh = Math.floor(remain / 3600);
+						const rm = Math.floor((remain % 3600) / 60);
+						const rs = remain % 60;
+						t._el._descEl.textContent = `${t.desc} - in ${pad(rh)}:${pad(rm)}:${pad(rs)}`;
+					}
+				});
+				if (fired) { syncRinging(); renderPending(); }
+			}
+
+			function swFrame() {
+				if (swRunning) {
+					swDisplay.textContent = fmtStopwatch(swElapsed + (Date.now() - swStart));
+					requestAnimationFrame(swFrame);
+				}
+			}
+
+			setInterval(tick, 100);
+			tick();
+		});
+	</script>
+</body>
+
+</html>
