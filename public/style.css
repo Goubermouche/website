@@ -204,6 +204,19 @@ pre code.hcj {
 	margin: 0;
 }
 
+/*homelab*/
+.lab-card {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 10px;
+	align-items: start;
+}
+
+.lab-photo {
+	width: 320px;
+	margin: 0;
+}
+
 /*media*/
 .media-list {
 	column-width: 250px;
@@ -291,6 +304,15 @@ pre code.hcj {
 
 	.mainpage-grid-container {
 		grid-template-columns: 1fr;
+	}
+
+	.lab-card {
+		grid-template-columns: 1fr;
+	}
+
+	.lab-photo {
+		width: 100%;
+		height: auto;
 	}
 
 	.github-board-container {
